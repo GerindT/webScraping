@@ -19,22 +19,25 @@ app.use(cors({
 // Create an API endpoint to fetch the extracted data
 app.get('/api/data', async (req, res) => {
   try {
-    const urls = [ 
-      // "https://www.amazon.com/2021-Apple-10-2-inch-iPad-Wi-Fi/dp/B09G9FPHY6/ref=lp_16225009011_1_2?sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D",
-      "https://www.amazon.com/Womens-Kitten-Pointed-Elegant-Wedding/dp/B0B1ZTKV2C?ref_=Oct_DLandingS_D_86924c50_0&th=1",
-      "https://www.amazon.com/Apple-Generation-Cancelling-Transparency-Personalized/dp/B0BDHWDR12/ref=lp_16225009011_1_1?sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D",
-      "https://www.amazon.com/AmazonBasics-Performance-Alkaline-Batteries-Count/dp/B00LH3DMUO/ref=lp_16225009011_1_4?sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D",
-     
-    ];
+    const url = req.query.url; // Extract the URL from the query parameters
 
-    // Call the runCrawler function to get the extracted data
-    const extractedData = await runCrawler(urls);
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter is missing.' });
+    }
+
+    // Add any additional checks or validations you need for the URL here
+    if (!url.includes('amazon')) {
+      return res.status(400).json({ error: 'Invalid URL.' });
+    }
+
+    const extractedData = await runCrawler([url]);
 
     res.json(extractedData);
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while fetching the data.' });
   }
 });
+
 
 // Start the server
 app.listen(port, () => {
