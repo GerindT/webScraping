@@ -11,7 +11,7 @@ const port = 3000;
 // Middleware to parse JSON data in the request body
 app.use(json());
 app.use(cors({
-  origin: 'http://127.0.0.1:5173'
+  origin: 'http://localhost:5173'
 }));
 // Serve the static files for the browser extension
 // app.use('extension');

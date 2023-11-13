@@ -75,35 +75,7 @@ async function scrapeReviews(url) {
     await nextPageButton.click();
     await page.waitForTimeout(2000);
   }
-    // Navigate to the full FAQ section
-    // const faqLink = await page.$('.askSeeAllQuestionsLink'); // Replace 'your-faq-link-selector' with the correct selector for the FAQ link
-    // if (faqLink) {
-    //   await faqLink.click();
-    //   await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-    // }
-  
-    // // Scrape the FAQ section
-    // const questionsAnswers = await page.evaluate(() => {
-    //   const faqData = [];
-    //   const questionElements = document.querySelectorAll('.askTeaserQuestions > div > div > span');
-
-    //   questionElements.forEach(questionElement => {
-    //     const question = questionElement.textContent.trim();
-
-    //     // Get the associated answer for each question (if available)
-    //     const answerElement = questionElement.closest('.a-spacing-top-small')?.querySelector('.a-expander-content > span');
-    //     const answer = answerElement ? answerElement.textContent.trim() : '';
-
-    //     faqData.push({ question, answer });
-    //   });
-
-    //   return faqData;
-    // });
-
-    // console.log("faqdata",questionsAnswers)
-  
-    // data.faq = questionsAnswers; // Add the FAQ data to the 'data' object
-  
+   
 
   await browser.close();
   return data;
