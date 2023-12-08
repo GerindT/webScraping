@@ -1,6 +1,6 @@
 import asyncio
-import re
 from datetime import datetime
+import re
 from pyppeteer import launch
 
 
@@ -119,12 +119,12 @@ async def run_crawler(urls):
     return dataset
 
 
-# if __name__ == "__main__":
-#     asyncio.get_event_loop().run_until_complete(
-#         run_crawler(
-#             [
-#                 "https://www.amazon.com/Womens-Kitten-Pointed-Elegant-Wedding/dp/B0B1ZTKV2C?ref_=Oct_DLandingS_D_86924c50_0&th=1",
-#                 # Add more URLs here if needed
-#             ]
-#         )
-#     )
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(
+        run_crawler(
+            [
+                "https://www.amazon.com/Womens-Kitten-Pointed-Elegant-Wedding/dp/B0B1ZTKV2C?ref_=Oct_DLandingS_D_86924c50_0&th=1",
+                # Add more URLs here if needed
+            ]
+        )
+    )

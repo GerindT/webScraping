@@ -1,20 +1,25 @@
-import { launch } from 'puppeteer';
+import { launch } from "puppeteer";
 
 async function scrapeReviews(url) {
-  const browser = await launch({ headless: 'new' });
+  const browser = await launch({ headless: "false" });
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  const title = await page.$eval('div[data-hook="review"]', (element) => element.textContent.trim());
+  const title = await page.$eval('div[data-hook="review"]', (element) =>
+    element.textContent.trim()
+  );
   console.log(title);
 
   async function loadAllReviews() {
     while (true) {
-      const loadMoreButton = await page.$('a[data-hook="see-all-reviews-link-foot"]');
+      const loadMoreButton = await page.$(
+        'a[data-hook="see-all-reviews-link-foot"]'
+      );
       if (loadMoreButton) {
         await loadMoreButton.click();
-        await page.waitForTimeout(2000);
+        // await page.waitForTimeout(2000);
+        new Promise((r) => setTimeout(r, 2000));
       } else {
         break;
       }
@@ -32,21 +37,36 @@ async function scrapeReviews(url) {
     if (reviews.length === 0) break; // No more reviews, exit the loop
 
     for (const review of reviews) {
-      const author = await review.$eval('.a-profile-name', (element) => element.textContent.trim());
-      const reviewText = await review.$eval('.a-size-base.review-text.review-text-content > span', (element) => element.textContent.trim());
-      const rating = await review.$eval('.a-icon-alt', (element) => element.textContent.trim());
-      const ratingDescription = await review.$eval('.a-size-base.a-color-base.review-title', (element) => {
-        const spanElement = element.querySelectorAll('span'); // Get the first span element inside the review parent element
-        return spanElement ? spanElement[2].textContent.trim() : ''; // Return its text content if found, or an empty string if not found
-      });
-      const time = await review.$eval('span[data-hook="review-date"]', (element) => element.textContent.trim());
-      let itemDetails = '';
+      const author = await review.$eval(".a-profile-name", (element) =>
+        element.textContent.trim()
+      );
+      const reviewText = await review.$eval(
+        ".a-size-base.review-text.review-text-content > span",
+        (element) => element.textContent.trim()
+      );
+      const rating = await review.$eval(".a-icon-alt", (element) =>
+        element.textContent.trim()
+      );
+      const ratingDescription = await review.$eval(
+        ".a-size-base.a-color-base.review-title",
+        (element) => {
+          const spanElement = element.querySelectorAll("span"); // Get the first span element inside the review parent element
+          return spanElement ? spanElement[2].textContent.trim() : ""; // Return its text content if found, or an empty string if not found
+        }
+      );
+      const time = await review.$eval(
+        'span[data-hook="review-date"]',
+        (element) => element.textContent.trim()
+      );
+      let itemDetails = "";
       try {
-        itemDetails = await review.$eval('a[data-hook="format-strip"]', (element) => element.textContent.trim());
+        itemDetails = await review.$eval(
+          'a[data-hook="format-strip"]',
+          (element) => element.textContent.trim()
+        );
       } catch (error) {
-        console.error('Error fetching item details:', error.message);
+        console.error("Error fetching item details:", error.message);
       }
-
 
       console.log(`Author: ${author}`);
       console.log(`Review: ${reviewText}`);
@@ -54,7 +74,7 @@ async function scrapeReviews(url) {
       console.log(`Rating Description: ${ratingDescription}`);
       console.log(`Time: ${time}`);
 
-      console.log('---');
+      console.log("---");
 
       data.reviews.push({
         author,
@@ -67,15 +87,15 @@ async function scrapeReviews(url) {
     }
 
     // Check if there is a next page and navigate to it if available
-    const nextPageButton = await page.$('li.a-last a');
+    const nextPageButton = await page.$("li.a-last a");
     if (!nextPageButton) break; // No more pages to scrape, exit the loop
 
     pageNum++;
     console.log(`Scraping reviews from page ${pageNum}`);
     await nextPageButton.click();
-    await page.waitForTimeout(2000);
+    // await page.waitForTimeout(2000);
+    new Promise((r) => setTimeout(r, 2000));
   }
-   
 
   await browser.close();
   return data;
@@ -88,8 +108,8 @@ export async function runCrawler(urls) {
     const data = await scrapeReviews(url);
     for (const review of data.reviews) {
       const timeString = review.time; // Assuming the time is stored in the "time" property
-      const dateRegex = /on (.*)/;  // Regular expression to match the first part of the time string (YYYY-MM-DD)
-   
+      const dateRegex = /on (.*)/; // Regular expression to match the first part of the time string (YYYY-MM-DD)
+
       const match = timeString.match(dateRegex);
 
       if (match) {
@@ -98,7 +118,6 @@ export async function runCrawler(urls) {
       } else {
         review.date = null; // If the time string doesn't match the expected format, set the date to null
       }
-   
     }
     dataset.push(data);
   }
@@ -109,8 +128,3 @@ export async function runCrawler(urls) {
   }
   return dataset;
 }
-
-// runCrawler([
-//   "https://www.amazon.com/Womens-Kitten-Pointed-Elegant-Wedding/dp/B0B1ZTKV2C?ref_=Oct_DLandingS_D_86924c50_0&th=1",
-//   // Add more URLs here if needed
-// ]);
