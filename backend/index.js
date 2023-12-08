@@ -1,4 +1,5 @@
 import { launch } from "puppeteer";
+import puppeteer from "puppeteer";
 import "dotenv/config";
 
 function deriveReviewsURL(productURL) {
