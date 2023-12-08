@@ -1,16 +1,19 @@
 import { launch } from "puppeteer";
 import puppeteer from "puppeteer";
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config();
 
 function deriveReviewsURL(productURL) {
   // Extract the product ID from the URL
-  const productIdMatch = productURL.match(/\/dp\/(\w+)\//);
-  if (!productIdMatch || productIdMatch.length < 2) {
+  const productIdMatch = productURL.match(
+    /\/dp\/(\w+)|\/([A-Za-z0-9]{10})(?=\/|$)/
+  );
+  if (!productIdMatch || productIdMatch.length < 3) {
     console.error("Unable to extract product ID from the URL");
     return null;
   }
 
-  const productId = productIdMatch[1];
+  const productId = productIdMatch[1] || productIdMatch[2];
 
   // Construct the reviews URL
   const reviewsURL = `https://www.amazon.com/product-reviews/${productId}/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews`;
@@ -19,14 +22,16 @@ function deriveReviewsURL(productURL) {
 }
 
 async function scrapeReviewsByRating(url, filterRating) {
+  let customArgs = [
+    "--disable-setuid-sandbox",
+    "--no-sandbox",
+    "--single-process",
+    "--no-zygote",
+  ];
+
   const browser = await launch({
     headless: "New",
-    args: [
-      "--disable-setuid-sandbox",
-      "--no-sandbox",
-      "--single-process",
-      "--no-zygote",
-    ],
+    args: process.env.NODE_ENV === "production" ? customArgs : [],
     executablePath:
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
@@ -46,7 +51,7 @@ async function scrapeReviewsByRating(url, filterRating) {
 
   let pageNum = 1;
   let flRating = filterRating;
-  const data = { url, totalreviews: [] };
+  const data = {};
 
   while (true) {
     const reviews = await page.$$('div[data-hook="review"]');
@@ -60,7 +65,7 @@ async function scrapeReviewsByRating(url, filterRating) {
       try {
         reviewText = await review.$eval(
           ".a-size-base.review-text.review-text-content > span",
-          (element) => element.textContent.trim()
+          (element) => (element.textContent ? element.textContent.trim() : "")
         );
       } catch (error) {
         console.error("Error fetching review text:", error.message);
@@ -68,13 +73,20 @@ async function scrapeReviewsByRating(url, filterRating) {
       const rating = await review.$eval(".a-icon-alt", (element) =>
         element.textContent.trim()
       );
-      const ratingDescription = await review.$eval(
-        ".a-size-base.a-color-base.review-title",
-        (element) => {
-          const spanElement = element.querySelectorAll("span");
-          return spanElement ? spanElement[2].textContent.trim() : "";
-        }
-      );
+      let ratingDescription = null;
+      try {
+        ratingDescription = await review.$eval(
+          ".a-size-base.a-color-base.review-title",
+          (element) => {
+            const spanElement = element.querySelectorAll("span");
+            return spanElement && spanElement[2].textContent
+              ? spanElement[2].textContent.trim()
+              : "";
+          }
+        );
+      } catch (error) {
+        console.error("Error fetching rating description:", error.message);
+      }
       const time = await review.$eval(
         'span[data-hook="review-date"]',
         (element) => element.textContent.trim()
@@ -96,15 +108,6 @@ async function scrapeReviewsByRating(url, filterRating) {
       console.log(`Time: ${time}`);
 
       console.log("---");
-
-      data.totalreviews.push({
-        author,
-        rating,
-        ratingDescription,
-        reviewText,
-        time,
-        filterRating,
-      });
 
       if (!data.hasOwnProperty(flRating)) {
         data[flRating] = []; // Initialize the array if it doesn't exist
@@ -135,7 +138,6 @@ async function scrapeReviewsByRating(url, filterRating) {
 
 export async function runCrawler(urls) {
   const dataset = [];
-
   const starRatings = [
     "five_star",
     "four_star",
@@ -144,10 +146,12 @@ export async function runCrawler(urls) {
     "one_star",
   ]; // Change this array based on your needs
 
-  for (const url of urls) {
+  for (const [index, url] of urls.entries()) {
+    console.log(`Scraping reviews for ${index}`);
+    dataset.push({ url, totalreviews: [] });
     for (const rating of starRatings) {
       const data = await scrapeReviewsByRating(deriveReviewsURL(url), rating);
-      for (const review of data.totalreviews) {
+      for (const review of data[rating]) {
         const timeString = review.time;
         const dateRegex = /on (.*)/;
         const match = timeString.match(dateRegex);
@@ -159,15 +163,18 @@ export async function runCrawler(urls) {
           review.date = null;
         }
       }
-      dataset.push(data);
+      dataset[index].totalreviews.push(...data[rating]);
+
+      if (!dataset[index].hasOwnProperty(rating)) {
+        dataset[rating] = []; // Initialize the array if it doesn't exist
+      }
+      dataset[index][rating] = data[rating];
     }
   }
 
   console.log(dataset);
   for (const data of dataset) {
-    console.log(
-      `Number of reviews for ${data.url}: ${data.totalreviews.length}`
-    );
+    console.log(`Number of reviews for ${data.totalreviews.length}:`);
   }
   return dataset;
 }

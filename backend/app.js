@@ -3,6 +3,8 @@ import pkg from "body-parser";
 const { json } = pkg;
 import { runCrawler } from "./index.js";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const port = 3000 || process.env.PORT;
@@ -14,9 +16,9 @@ app.use(json());
 app.use(
   cors({
     origin:
-      process.env.NODE_ENV == "dev"
-        ? "http://localhost:5173"
-        : "https://scamless-frontend.netlify.app",
+      process.env.NODE_ENV === "production"
+        ? "https://scamless-frontend.netlify.app"
+        : "http://localhost:5173",
   })
 );
 

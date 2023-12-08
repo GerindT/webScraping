@@ -12,8 +12,8 @@
         "puppeteer": "^20.9.0"
     },
     "scripts": {
-        "start": "set NODE_ENV=prod && node app.js ",
-        "dev": "set NODE_ENV=dev && nodemon app.js ",
+        "start": " node app.js ",
+        "dev": " nodemon app.js ",
         "test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1"
     },
     "author": "It's not you it's me",
