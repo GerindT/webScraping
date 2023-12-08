@@ -1,5 +1,5 @@
 import { launch } from "puppeteer";
-require("dotenv").config();
+import "dotenv/config";
 
 function deriveReviewsURL(productURL) {
   // Extract the product ID from the URL
