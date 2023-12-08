@@ -1,5 +1,4 @@
 import asyncio
-import re
 from datetime import datetime
 from pyppeteer import launch
 
