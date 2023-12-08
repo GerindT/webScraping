@@ -1,57 +1,64 @@
 import { launch } from "puppeteer";
 
-async function scrapeReviews(url) {
-  const browser = await launch({ headless: "false" });
+function deriveReviewsURL(productURL) {
+  // Extract the product ID from the URL
+  const productIdMatch = productURL.match(/\/dp\/(\w+)\//);
+  if (!productIdMatch || productIdMatch.length < 2) {
+    console.error("Unable to extract product ID from the URL");
+    return null;
+  }
+
+  const productId = productIdMatch[1];
+
+  // Construct the reviews URL
+  const reviewsURL = `https://www.amazon.com/product-reviews/${productId}/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews`;
+
+  return reviewsURL;
+}
+
+async function scrapeReviewsByRating(url, filterRating) {
+  const browser = await launch({ headless: "New" });
+
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page.goto(`${url}&filterByStar=${filterRating}`, {
+    waitUntil: "domcontentloaded",
+  });
 
   const title = await page.$eval('div[data-hook="review"]', (element) =>
     element.textContent.trim()
   );
-  console.log(title);
-
-  async function loadAllReviews() {
-    while (true) {
-      const loadMoreButton = await page.$(
-        'a[data-hook="see-all-reviews-link-foot"]'
-      );
-      if (loadMoreButton) {
-        await loadMoreButton.click();
-        // await page.waitForTimeout(2000);
-        new Promise((r) => setTimeout(r, 2000));
-      } else {
-        break;
-      }
-    }
-  }
-
-  await loadAllReviews();
+  console.log(`Reviews for ${filterRating} stars - ${title}`);
 
   let pageNum = 1;
-  const data = { url, reviews: [] };
+  let flRating = filterRating;
+  const data = { url, totalreviews: [] };
 
   while (true) {
-    // Get all individual review elements
     const reviews = await page.$$('div[data-hook="review"]');
-    if (reviews.length === 0) break; // No more reviews, exit the loop
+    if (reviews.length === 0) break;
 
     for (const review of reviews) {
       const author = await review.$eval(".a-profile-name", (element) =>
         element.textContent.trim()
       );
-      const reviewText = await review.$eval(
-        ".a-size-base.review-text.review-text-content > span",
-        (element) => element.textContent.trim()
-      );
+      let reviewText = null;
+      try {
+        reviewText = await review.$eval(
+          ".a-size-base.review-text.review-text-content > span",
+          (element) => element.textContent.trim()
+        );
+      } catch (error) {
+        console.error("Error fetching review text:", error.message);
+      }
       const rating = await review.$eval(".a-icon-alt", (element) =>
         element.textContent.trim()
       );
       const ratingDescription = await review.$eval(
         ".a-size-base.a-color-base.review-title",
         (element) => {
-          const spanElement = element.querySelectorAll("span"); // Get the first span element inside the review parent element
-          return spanElement ? spanElement[2].textContent.trim() : ""; // Return its text content if found, or an empty string if not found
+          const spanElement = element.querySelectorAll("span");
+          return spanElement ? spanElement[2].textContent.trim() : "";
         }
       );
       const time = await review.$eval(
@@ -76,25 +83,36 @@ async function scrapeReviews(url) {
 
       console.log("---");
 
-      data.reviews.push({
+      data.totalreviews.push({
         author,
         rating,
         ratingDescription,
         reviewText,
         time,
-        itemDetails,
+        filterRating,
+      });
+
+      if (!data.hasOwnProperty(flRating)) {
+        data[flRating] = []; // Initialize the array if it doesn't exist
+      }
+
+      data[flRating].push({
+        author,
+        rating,
+        ratingDescription,
+        reviewText,
+        time,
+        filterRating,
       });
     }
 
-    // Check if there is a next page and navigate to it if available
     const nextPageButton = await page.$("li.a-last a");
-    if (!nextPageButton) break; // No more pages to scrape, exit the loop
+    if (!nextPageButton) break;
 
     pageNum++;
     console.log(`Scraping reviews from page ${pageNum}`);
     await nextPageButton.click();
-    // await page.waitForTimeout(2000);
-    new Promise((r) => setTimeout(r, 2000));
+    await page.waitForTimeout(2000);
   }
 
   await browser.close();
@@ -104,27 +122,38 @@ async function scrapeReviews(url) {
 export async function runCrawler(urls) {
   const dataset = [];
 
+  const starRatings = [
+    "five_star",
+    "four_star",
+    "three_star",
+    "two_star",
+    "one_star",
+  ]; // Change this array based on your needs
+
   for (const url of urls) {
-    const data = await scrapeReviews(url);
-    for (const review of data.reviews) {
-      const timeString = review.time; // Assuming the time is stored in the "time" property
-      const dateRegex = /on (.*)/; // Regular expression to match the first part of the time string (YYYY-MM-DD)
+    for (const rating of starRatings) {
+      const data = await scrapeReviewsByRating(deriveReviewsURL(url), rating);
+      for (const review of data.totalreviews) {
+        const timeString = review.time;
+        const dateRegex = /on (.*)/;
+        const match = timeString.match(dateRegex);
 
-      const match = timeString.match(dateRegex);
-
-      if (match) {
-        const dateString = match[1];
-        review.date = new Date(dateString);
-      } else {
-        review.date = null; // If the time string doesn't match the expected format, set the date to null
+        if (match) {
+          const dateString = match[1];
+          review.date = new Date(dateString);
+        } else {
+          review.date = null;
+        }
       }
+      dataset.push(data);
     }
-    dataset.push(data);
   }
 
   console.log(dataset);
   for (const data of dataset) {
-    console.log(`Number of reviews for ${data.url}: ${data.reviews.length}`);
+    console.log(
+      `Number of reviews for ${data.url}: ${data.totalreviews.length}`
+    );
   }
   return dataset;
 }
