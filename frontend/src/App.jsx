@@ -9,6 +9,10 @@ const App = () => {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const apiUrl = !import.meta.env.DEV
+    ? import.meta.env.VITE_PROD_API_URL
+    : import.meta.env.VITE_DEV_API_URL;
+  console.log(apiUrl);
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -17,7 +21,7 @@ const App = () => {
 
       const encodedUrl = encodeURIComponent(url);
 
-      fetch(`http://127.0.0.1:3000/api/data?url=${encodedUrl}`)
+      fetch(`${apiUrl}/api/data?url=${encodedUrl}`)
         .then((response) => response.json())
         .then((data) => {
           console.log(data[0]);

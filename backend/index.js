@@ -1,4 +1,5 @@
 import { launch } from "puppeteer";
+require("dotenv").config();
 
 function deriveReviewsURL(productURL) {
   // Extract the product ID from the URL
@@ -17,7 +18,19 @@ function deriveReviewsURL(productURL) {
 }
 
 async function scrapeReviewsByRating(url, filterRating) {
-  const browser = await launch({ headless: "New" });
+  const browser = await launch({
+    headless: "New",
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
 
   const page = await browser.newPage();
 
