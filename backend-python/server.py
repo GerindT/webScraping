@@ -3,10 +3,13 @@ from quart import Quart, request, jsonify
 from index import run_crawler
 from quart_cors import cors, route_cors
 import asyncio
+import os
+
 
 app = Quart(__name__)
 app = cors(app, allow_origin="*")
 
+app.config["QUART_ENV"] = os.environ.get("QUART_ENV", "production")
 app.config["DEBUG"] = True
 app.config["SINGLE_PROCESS"] = True
 
@@ -41,5 +44,5 @@ async def get_data():
         return jsonify({"error": "An error occurred while fetching the data."}), 500
 
 
-if __name__ == "__main__":
-    app.run(port=3000)
+# if __name__ == "__main__":
+#     app.run(port=3000)

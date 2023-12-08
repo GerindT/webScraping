@@ -2,4 +2,3 @@ quart==0.15.1
 quart-cors==0.4.0
 pyppeteer==0.2.5
 uvicorn==0.24.0.post1
-websockets==10.4
