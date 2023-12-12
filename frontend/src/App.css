@@ -1,10 +1,18 @@
 .chart-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+  align-self: center;
   align-items: center;
   height: 100vh;
+  flex-direction: column;
+  gap: 50px;
 }
 
 .shifted {
   margin-left: 300px; /* adjust this value based on the width of your sidebar */
+}
+.motion-container{
+  padding-top: 100px;
 }
