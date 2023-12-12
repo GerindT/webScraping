@@ -8,14 +8,19 @@
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
         "express": "^4.18.2",
+        "helmet": "^7.1.0",
+        "morgan": "^1.10.0",
         "nodemon": "^3.0.2",
         "puppeteer": "^20.9.0"
     },
     "scripts": {
         "start": " node app.js ",
         "dev": " nodemon app.js ",
-        "test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1"
+        "test": "jest"
     },
     "author": "It's not you it's me",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+       
+    }
 }

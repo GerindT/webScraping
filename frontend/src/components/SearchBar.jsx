@@ -22,6 +22,7 @@ function SearchBar() {
     }
 
     setIsLoading(true);
+    setErrorMessage("");
     const encodedUrl = encodeURIComponent(url);
     try {
       // Fetch data from the API
