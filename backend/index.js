@@ -222,10 +222,10 @@ export async function runCrawler(urls) {
   const dataset = [];
   const starRatings = [
     "five_star",
-    // "four_star",
-    // "three_star",
-    // "two_star",
-    // "one_star",
+    "four_star",
+    "three_star",
+    "two_star",
+    "one_star",
   ]; // Change this array based on your needs
 
   for (const [index, url] of urls.entries()) {
