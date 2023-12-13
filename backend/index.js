@@ -24,12 +24,7 @@ function deriveReviewsURL(productURL) {
 async function scrapeProductDetails(url) {
   const data = { description: "" };
 
-  let customArgs = [
-    "--disable-setuid-sandbox",
-    "--no-sandbox",
-    // "--single-process",
-    "--no-zygote",
-  ];
+  let customArgs = ["--no-sandbox"];
 
   const browser = await launch({
     headless: "New",
