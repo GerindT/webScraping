@@ -1,6 +1,7 @@
 import { launch } from "puppeteer";
 import puppeteer from "puppeteer";
 import dotenv from "dotenv";
+import { Cluster } from "puppeteer-cluster";
 dotenv.config();
 
 function deriveReviewsURL(productURL) {
@@ -226,25 +227,25 @@ export async function runCrawler(urls) {
     "three_star",
     "two_star",
     "one_star",
-  ]; // Change this array based on your needs
+  ];
 
-  for (const [index, url] of urls.entries()) {
-    console.log(`Scraping reviews for ${index}`);
-    if (!dataset[index]) {
-      dataset[index] = { url, totalreviews: [] };
-    }
-    const baseData = await scrapeProductDetails(urls);
+  // Create a puppeteer cluster
+  const cluster = await Cluster.launch({
+    concurrency: Cluster.CONCURRENCY_CONTEXT,
+    maxConcurrency: 4, // Adjust this value based on your needs
+  });
 
-    console.log(baseData);
+  // Define a task (this is where your scraping code goes)
+  await cluster.task(async ({ page, data: url }) => {
+    const baseData = await scrapeProductDetails(url);
+    dataset.push({ url, ...baseData, totalreviews: [] });
 
-    dataset[index] = { ...dataset[index], ...baseData };
     for (const rating of starRatings) {
       const reviewData = await scrapeReviewsByRating(url, rating);
       for (const review of reviewData[rating]) {
         const timeString = review.time;
         const dateRegex = /on (.*)/;
         const match = timeString.match(dateRegex);
-
         if (match) {
           const dateString = match[1];
           review.date = new Date(dateString);
@@ -252,14 +253,22 @@ export async function runCrawler(urls) {
           review.date = null;
         }
       }
-      dataset[index].totalreviews.push(...reviewData[rating]);
-
-      if (!dataset[index].hasOwnProperty(rating)) {
-        dataset[rating] = []; // Initialize the array if it doesn't exist
+      dataset[dataset.length - 1].totalreviews.push(...reviewData[rating]);
+      if (!dataset[dataset.length - 1].hasOwnProperty(rating)) {
+        dataset[dataset.length - 1][rating] = []; // Initialize the array if it doesn't exist
       }
-      dataset[index][rating] = reviewData[rating];
+      dataset[dataset.length - 1][rating] = reviewData[rating];
     }
+  });
+
+  // Queue URLs
+  for (const url of urls) {
+    cluster.queue(url);
   }
+
+  // Wait for the cluster to idle and close it
+  await cluster.idle();
+  await cluster.close();
 
   console.log(dataset);
   for (const data of dataset) {
