@@ -1,7 +1,11 @@
-import { launch } from "puppeteer";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra"; // Change this line
+import StealthPlugin from "puppeteer-extra-plugin-stealth"; // Add this line
+
 import dotenv from "dotenv";
 dotenv.config();
+
+// Add these lines to use the stealth plugin
+puppeteer.use(StealthPlugin());
 
 function deriveReviewsURL(productURL) {
   // Extract the product ID from the URL
@@ -24,9 +28,9 @@ function deriveReviewsURL(productURL) {
 async function scrapeProductDetails(url) {
   const data = { description: "" };
 
-  let customArgs = ["--no-sandbox"];
+  let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
 
-  const browser = await launch({
+  const browser = await puppeteer.launch({
     headless: "New",
     args: process.env.NODE_ENV === "production" ? customArgs : [],
     executablePath:
@@ -113,14 +117,9 @@ async function scrapeProductDetails(url) {
 }
 
 async function scrapeReviewsByRating(url, filterRating) {
-  let customArgs = [
-    "--disable-setuid-sandbox",
-    "--no-sandbox",
-    "--single-process",
-    "--no-zygote",
-  ];
+  let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
 
-  const browser = await launch({
+  const browser = await puppeteer.launch({
     headless: "New",
     args: process.env.NODE_ENV === "production" ? customArgs : [],
     executablePath:
