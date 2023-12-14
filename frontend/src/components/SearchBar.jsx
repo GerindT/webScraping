@@ -106,7 +106,7 @@ function SearchBar({ scrapedData, setScrapedData }) {
           type="submit"
           disabled={isLoading}
           className={`${
-            isLoading ? "opacity-[0.2] cursor-no-drop " : ""
+            isLoading ? "opacity-[0.2] cursor-progress " : ""
           }  mt-[10px] bg-gray-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform  hover:scale-105 cursor-pointer`}
         />
       </form>
