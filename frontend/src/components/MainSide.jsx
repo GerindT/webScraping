@@ -4,7 +4,6 @@ import SearchBar from "./SearchBar";
 import WelcomeSection from "./WelcomeSection";
 
 function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
-  console.log(scrapedData);
   const chartOption = {
     title: {
       text: Object.keys(scrapedData).length ? "Reviews by Years" : "No Data",
@@ -40,6 +39,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
     pixelRatio: 2,
     series: [
       {
+        color: "#6366f1",
         name: "One Star",
         type: "line",
         stack: "Total",
@@ -50,6 +50,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
           : [120, 132, 101, 134, 90, 230, 210],
       },
       {
+        color: "#a855f7",
         name: "Two Star",
         type: "line",
         stack: "Total",
@@ -60,6 +61,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
           : [220, 182, 191, 234, 290, 330, 310],
       },
       {
+        color: "#f87171",
         name: "Three Star",
         type: "line",
         stack: "Total",
@@ -70,6 +72,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
           : [150, 232, 201, 154, 190, 330, 410],
       },
       {
+        color: "#facc15",
         name: "Four Star",
         type: "line",
         stack: "Total",
@@ -80,6 +83,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
           : [320, 332, 301, 334, 390, 330, 320],
       },
       {
+        color: "#22c55e",
         name: "Five Star",
         type: "line",
         stack: "Total",
