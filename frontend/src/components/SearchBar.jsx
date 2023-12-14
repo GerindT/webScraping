@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { IoMdInformationCircleOutline } from "react-icons/io";
+import PropTypes from "prop-types";
 
 // The SearchBar component
-function SearchBar() {
+function SearchBar({ scrapedData, setScrapedData }) {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [scrapedData, setScrapedData] = useState({});
+
   const [errorMessage, setErrorMessage] = useState(""); // Add this line
 
   const apiUrl = !import.meta.env.DEV
@@ -41,8 +42,18 @@ function SearchBar() {
       );
     }
   };
+
+  const reviewTypes = {
+    totalreviews: "Total Reviews",
+    one_star: "One Star Reviews",
+    two_star: "Two Star Reviews",
+    three_star: "Three Star Reviews",
+    four_star: "Four Star Reviews",
+    five_star: "Five Star Reviews",
+  };
+
   return (
-    <motion.div className="mt-[55px] ">
+    <motion.div>
       <h1 className="pb-[10px] text-center text-[22px]">
         Insert your product&apos;s url
       </h1>
@@ -93,52 +104,37 @@ function SearchBar() {
           className="mt-[10px] bg-gray-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform  hover:scale-105 cursor-pointer"
         />
       </form>
-      {isLoading && (
-        <>
-          <div role="status" className="mt-[18px] max-w-sm animate-pulse">
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[360px] mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[330px] mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[300px] mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[360px] mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[330px] mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[300px] mb-2.5"></div>
-            <div className="h-2 bg-gray-700 rounded-full  max-w-[360px]"></div>
-          </div>
-        </>
-      )}
 
       {scrapedData.url != undefined && (
-        <div className="mt-[10px]">
-          <p>
-            Total Reviews :{" "}
-            {scrapedData.totalreviews ? scrapedData.totalreviews.length : 0}
-          </p>
-          <p>
-            5 Star Rating :{" "}
-            {scrapedData.five_star ? scrapedData.five_star.length : 0}
-          </p>
-          <p>
-            4 Star Rating :{" "}
-            {scrapedData.four_star ? scrapedData.four_star.length : 0}
-          </p>
-          <p>
-            3 Star Rating :{" "}
-            {scrapedData.three_star ? scrapedData.three_star.length : 0}
-          </p>
-          <p>
-            2 Star Rating :{" "}
-            {scrapedData.two_star ? scrapedData.two_star.length : 0}
-          </p>
-          <p>
-            1 Star Rating :{" "}
-            {scrapedData.one_star ? scrapedData.one_star.length : 0}
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:py-6 lg:px-6">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-4">
+            {Object.entries(reviewTypes).map(([key, name]) => (
+              <div
+                key={key}
+                className="bg-[#2b2a33] overflow-hidden shadow sm:rounded-lg"
+              >
+                <div className="px-4 py-5 sm:p-6">
+                  <dl>
+                    <dt className="text-sm leading-5 font-medium text-white-500 truncate">
+                      {name}
+                    </dt>
+                    <dd className="mt-1 text-3xl leading-9 font-semibold text-white-600">
+                      {scrapedData[key] ? scrapedData[key].length : 0}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </motion.div>
   );
 }
+
+SearchBar.propTypes = {
+  scrapedData: PropTypes.object.isRequired,
+  setScrapedData: PropTypes.func.isRequired,
+};
 
 export default SearchBar;

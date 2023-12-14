@@ -242,6 +242,27 @@ export async function runCrawler(urls) {
         if (match) {
           const dateString = match[1];
           review.date = new Date(dateString);
+
+          // Extract the year from the date
+          const year = review.date.getFullYear();
+
+          // Initialize the year object if it doesn't exist
+          if (!dataset[index].reviewsByYear) {
+            dataset[index].reviewsByYear = {};
+          }
+
+          if (!dataset[index].reviewsByYear[year]) {
+            dataset[index].reviewsByYear[year] = {
+              five_star: 0,
+              four_star: 0,
+              three_star: 0,
+              two_star: 0,
+              one_star: 0,
+            };
+          }
+
+          // Increment the count for the rating
+          dataset[index].reviewsByYear[year][rating]++;
         } else {
           review.date = null;
         }
