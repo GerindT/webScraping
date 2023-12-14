@@ -6,8 +6,8 @@ import MainSide from "./components/MainSide";
 import "./App.css";
 
 const App = () => {
-  const [isOpen, setIsOpen] = useState(true);
-  const [showChart, setShowChart] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [showChart, setShowChart] = useState(true);
   const [domLoaded, setDomLoaded] = useState(false);
   const [scrapedData, setScrapedData] = useState({});
 

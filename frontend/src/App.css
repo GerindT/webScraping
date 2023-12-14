@@ -8,6 +8,10 @@
   height: 100vh;
   flex-direction: column;
   gap: 40px;
+
+    min-height: 500px; /* Adjust this value as needed */
+    /* Other styles... */
+
 }
 
 .shifted {

@@ -26,20 +26,22 @@ function SearchBar({ scrapedData, setScrapedData }) {
     setIsLoading(true);
     setErrorMessage("");
     const encodedUrl = encodeURIComponent(url);
-    try {
-      // Fetch data from the API
-      const response = await fetch(`${apiUrl}/api/data?url=${encodedUrl}`);
-      const data = await response.json();
-      setScrapedData(data[0]);
-      setIsLoading(false);
-      setErrorMessage("");
-    } catch (error) {
-      // Handle errors
-      console.error("Error fetching data:", error);
-      setIsLoading(false);
-      setErrorMessage(
-        "An error occurred while fetching data. Please try again."
-      );
+    if (!isLoading) {
+      try {
+        // Fetch data from the API
+        const response = await fetch(`${apiUrl}/api/data?url=${encodedUrl}`);
+        const data = await response.json();
+        setScrapedData(data[0]);
+        setIsLoading(false);
+        setErrorMessage("");
+      } catch (error) {
+        // Handle errors
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
+        setErrorMessage(
+          "An error occurred while fetching data. Please try again."
+        );
+      }
     }
   };
 
@@ -60,10 +62,11 @@ function SearchBar({ scrapedData, setScrapedData }) {
       <form onSubmit={handleSubmit} className=" flex flex-col ">
         <label>
           <input
-            className="w-[100%] focus:outline-none focus:ring focus:ring-gray-500 bg-[#2b2a33] "
+            className={`w-[100%] focus:outline-none focus:ring focus:ring-gray-500 bg-[#2b2a33] `}
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
+            disabled={isLoading}
           />
         </label>
         {errorMessage && (
@@ -101,7 +104,10 @@ function SearchBar({ scrapedData, setScrapedData }) {
         )}
         <input
           type="submit"
-          className="mt-[10px] bg-gray-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform  hover:scale-105 cursor-pointer"
+          disabled={isLoading}
+          className={`${
+            isLoading ? "opacity-[0.2] cursor-no-drop " : ""
+          }  mt-[10px] bg-gray-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform  hover:scale-105 cursor-pointer`}
         />
       </form>
 
@@ -111,7 +117,7 @@ function SearchBar({ scrapedData, setScrapedData }) {
             {Object.entries(reviewTypes).map(([key, name]) => (
               <div
                 key={key}
-                className="bg-[#2b2a33] overflow-hidden shadow sm:rounded-lg"
+                className="bg-[#2b2a33] overflow-hidden shadow sm:rounded-lg cursor-pointer  transition duration-100 ease-in transform  hover:scale-105"
               >
                 <div className="px-4 py-5 sm:p-6">
                   <dl>
