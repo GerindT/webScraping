@@ -7,5 +7,6 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm ci
+RUN npm install -g bun
 COPY . .
-CMD [ "node", "app.js" ]
+CMD [ "bun", "app.js" ]
