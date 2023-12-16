@@ -25,6 +25,10 @@ jobs:
         cache: 'npm'
         cache-dependency-path: backend/package-lock.json
 
+      
+    - name: Install pm2
+      run: npm install -g pm2
+
     - name: Install and test in the backend directory
       working-directory: backend
       run: |
