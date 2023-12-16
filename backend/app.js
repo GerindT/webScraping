@@ -11,6 +11,13 @@ dotenv.config();
 const app = express();
 const port = 3000 || process.env.PORT;
 
+console.log(
+  "envs",
+  process.env.NODE_ENV,
+  process.env.PORT,
+  process.env.PUP_CHROME
+);
+
 // Middleware to parse JSON data in the request body
 app.use(json());
 app.use(helmet());
