@@ -33,10 +33,10 @@ async function scrapeProductDetails(url) {
   const browser = await puppeteer.launch({
     headless: "New",
     args: process.env.NODE_ENV === "production" ? customArgs : [],
-    executablePath:
-      process.env.NODE_ENV === "production"
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : puppeteer.executablePath(),
+    // executablePath:
+    //   process.env.NODE_ENV === "production"
+    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
+    //     : puppeteer.executablePath(),
   });
 
   const page = await browser.newPage();
@@ -122,10 +122,10 @@ async function scrapeReviewsByRating(url, filterRating) {
   const browser = await puppeteer.launch({
     headless: "New",
     args: process.env.NODE_ENV === "production" ? customArgs : [],
-    executablePath:
-      process.env.NODE_ENV === "production"
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : puppeteer.executablePath(),
+    // executablePath:
+    //   process.env.NODE_ENV === "production"
+    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
+    //     : puppeteer.executablePath(),
   });
 
   const page = await browser.newPage();
