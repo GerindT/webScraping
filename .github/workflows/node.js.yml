@@ -23,7 +23,7 @@ jobs:
 
     - name: Install and test in the backend directory
       run: |
-        cd ./backend
+        cd webScraping/backend
         npm ci
         touch .env
         echo "${{ secrets.PROD_ENV_FILE }}" > .env
