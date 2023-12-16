@@ -22,8 +22,8 @@ jobs:
         cache: 'npm'
 
     - name: Install and test in the backend directory
+      working-directory: backend
       run: |
-        cd webScraping/backend
         npm ci
         touch .env
         echo "${{ secrets.PROD_ENV_FILE }}" > .env
