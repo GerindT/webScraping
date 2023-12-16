@@ -6,6 +6,32 @@ dotenv.config();
 
 // Add these lines to use the stealth plugin
 puppeteer.use(StealthPlugin());
+let browserPool = [];
+async function initializeBrowserPool() {
+  const maxPoolSize = 5; // Adjust the number of instances based on your needs
+  browserPool = await Promise.all(
+    Array.from(
+      { length: maxPoolSize },
+      async () =>
+        await puppeteer.launch({
+          headless: "New",
+          args: ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"],
+        })
+    )
+  );
+}
+
+async function getBrowserInstance() {
+  if (browserPool.length === 0) {
+    await initializeBrowserPool();
+  }
+
+  return browserPool.pop();
+}
+
+async function releaseBrowserInstance(browser) {
+  browserPool.push(browser);
+}
 
 function deriveReviewsURL(productURL) {
   // Extract the product ID from the URL
@@ -30,104 +56,92 @@ async function scrapeProductDetails(url) {
 
   let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
 
-  const browser = await puppeteer.launch({
-    headless: "New",
-    args: process.env.NODE_ENV === "production" ? customArgs : [],
-    // executablePath:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
-    //     : puppeteer.executablePath(),
-  });
-
+  const browser = await getBrowserInstance();
   const page = await browser.newPage();
 
   await page.goto(`${url}`, {
     waitUntil: "domcontentloaded",
   });
 
-  // Scrape the price
-  const price = await page.$eval("span.a-offscreen", (element) =>
-    element.textContent.trim()
-  );
-  console.log(`Price: ${price}`);
-  data["price"] = price;
+  try {
+    // Scrape the price
+    const price = await page.$eval("span.a-offscreen", (element) =>
+      element.textContent.trim()
+    );
+    console.log(`Price: ${price}`);
+    data["price"] = price;
 
-  // Scrape the product title
-  const productTitle = await page.$eval("span#productTitle", (element) =>
-    element.textContent.trim()
-  );
-  console.log(`Product Title: ${productTitle}`);
-  data["productTitle"] = productTitle;
-  // Scrape the product details
-  const productDetails = await page.$$eval(
-    "div.product-facts-detail",
-    (elements) =>
-      elements.map((element) => {
-        const key = element
-          .querySelector(
-            "div.a-fixed-left-grid-col.a-col-left span.a-color-base"
-          )
-          .textContent.trim();
-        const value = element
-          .querySelector(
-            "div.a-fixed-left-grid-col.a-col-right span.a-color-base"
-          )
-          .textContent.trim();
-        return { [key]: value };
-      })
-  );
-  console.log(`Product Details: ${JSON.stringify(productDetails)}`);
-  data["productDetails"] = productDetails;
+    // Scrape the product title
+    const productTitle = await page.$eval("span#productTitle", (element) =>
+      element.textContent.trim()
+    );
+    console.log(`Product Title: ${productTitle}`);
+    data["productTitle"] = productTitle;
+    // Scrape the product details
+    const productDetails = await page.$$eval(
+      "div.product-facts-detail",
+      (elements) =>
+        elements.map((element) => {
+          const key = element
+            .querySelector(
+              "div.a-fixed-left-grid-col.a-col-left span.a-color-base"
+            )
+            .textContent.trim();
+          const value = element
+            .querySelector(
+              "div.a-fixed-left-grid-col.a-col-right span.a-color-base"
+            )
+            .textContent.trim();
+          return { [key]: value };
+        })
+    );
+    console.log(`Product Details: ${JSON.stringify(productDetails)}`);
+    data["productDetails"] = productDetails;
 
-  // Scrape the about item information
-  const descriptionItem = await page.$$eval(
-    "ul.a-unordered-list.a-vertical.a-spacing-small li span.a-list-item",
-    (elements) => elements.map((item) => item.textContent.trim())
-  );
-  const descriptionItemText = descriptionItem.join(" ");
-  console.log(`About Item: ${descriptionItemText}`);
-  data["descriptionItem"] = descriptionItemText;
+    // Scrape the about item information
+    const descriptionItem = await page.$$eval(
+      "ul.a-unordered-list.a-vertical.a-spacing-small li span.a-list-item",
+      (elements) => elements.map((item) => item.textContent.trim())
+    );
+    const descriptionItemText = descriptionItem.join(" ");
+    console.log(`About Item: ${descriptionItemText}`);
+    data["descriptionItem"] = descriptionItemText;
 
-  // Scrape the product details
-  const generalProductDetails = await page.$$eval(
-    "table.a-normal.a-spacing-micro tr",
-    (elements) =>
-      elements.map((element) => {
-        const key = element
-          .querySelector("td.a-span3 span.a-size-base.a-text-bold")
-          .textContent.trim();
-        const value = element
-          .querySelector("td.a-span9 span.a-size-base.po-break-word")
-          .textContent.trim();
-        return { [key]: value };
-      })
-  );
-  console.log(`Product Details: ${JSON.stringify(generalProductDetails)}`);
-  data["generalProductDetails"] = generalProductDetails;
+    // Scrape the product details
+    const generalProductDetails = await page.$$eval(
+      "table.a-normal.a-spacing-micro tr",
+      (elements) =>
+        elements.map((element) => {
+          const key = element
+            .querySelector("td.a-span3 span.a-size-base.a-text-bold")
+            .textContent.trim();
+          const value = element
+            .querySelector("td.a-span9 span.a-size-base.po-break-word")
+            .textContent.trim();
+          return { [key]: value };
+        })
+    );
+    console.log(`Product Details: ${JSON.stringify(generalProductDetails)}`);
+    data["generalProductDetails"] = generalProductDetails;
 
-  // Scrape the description
-  const generalDescriptionItem = await page.$$eval(
-    "ul.a-unordered-list.a-vertical.a-spacing-mini li.a-spacing-mini span.a-list-item",
-    (elements) => elements.map((item) => item.textContent.trim())
-  );
-  const description = generalDescriptionItem.join(" ");
-  data["generalDescriptionItem"] = description;
+    // Scrape the description
+    const generalDescriptionItem = await page.$$eval(
+      "ul.a-unordered-list.a-vertical.a-spacing-mini li.a-spacing-mini span.a-list-item",
+      (elements) => elements.map((item) => item.textContent.trim())
+    );
+    const description = generalDescriptionItem.join(" ");
+    data["generalDescriptionItem"] = description;
 
-  return data;
+    return data;
+  } finally {
+    await releaseBrowserInstance(browser);
+  }
 }
 
 async function scrapeReviewsByRating(url, filterRating) {
   let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
 
-  const browser = await puppeteer.launch({
-    headless: "New",
-    args: process.env.NODE_ENV === "production" ? customArgs : [],
-    // executablePath:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
-    //     : puppeteer.executablePath(),
-  });
-
+  const browser = await getBrowserInstance();
   const page = await browser.newPage();
 
   const reviewsUrl = deriveReviewsURL(url);
