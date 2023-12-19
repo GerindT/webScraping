@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer-extra"; // Change this line
 import StealthPlugin from "puppeteer-extra-plugin-stealth"; // Add this line
-
+import * as ss from 'simple-statistics'
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -26,17 +26,25 @@ function deriveReviewsURL(productURL) {
 }
 
 async function scrapeProductDetails(url) {
-  const data = { description: "" };
+  const data = {
+    description: "",
+    price: null,
+    productTitle: null,
+    productDetails: null,
+    descriptionItem: null,
+    generalProductDetails: null,
+    generalDescriptionItem: null,
+  };
 
   let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
 
   const browser = await puppeteer.launch({
     headless: "New",
     args: process.env.NODE_ENV === "production" ? customArgs : [],
-    // executablePath:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
-    //     : puppeteer.executablePath(),
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
   });
 
   const page = await browser.newPage();
@@ -50,14 +58,15 @@ async function scrapeProductDetails(url) {
     element.textContent.trim()
   );
   console.log(`Price: ${price}`);
-  data["price"] = price;
+  data["price"] = price || null;
 
   // Scrape the product title
   const productTitle = await page.$eval("span#productTitle", (element) =>
     element.textContent.trim()
   );
   console.log(`Product Title: ${productTitle}`);
-  data["productTitle"] = productTitle;
+  data["productTitle"] = productTitle || null;
+
   // Scrape the product details
   const productDetails = await page.$$eval(
     "div.product-facts-detail",
@@ -67,17 +76,18 @@ async function scrapeProductDetails(url) {
           .querySelector(
             "div.a-fixed-left-grid-col.a-col-left span.a-color-base"
           )
-          .textContent.trim();
+          ?.textContent.trim();
         const value = element
           .querySelector(
             "div.a-fixed-left-grid-col.a-col-right span.a-color-base"
           )
-          .textContent.trim();
-        return { [key]: value };
+          ?.textContent.trim();
+        return key && value ? { [key]: value } : null;
       })
+      .filter(Boolean) // Remove null values
   );
   console.log(`Product Details: ${JSON.stringify(productDetails)}`);
-  data["productDetails"] = productDetails;
+  data["productDetails"] = productDetails.length > 0 ? productDetails : null;
 
   // Scrape the about item information
   const descriptionItem = await page.$$eval(
@@ -86,7 +96,7 @@ async function scrapeProductDetails(url) {
   );
   const descriptionItemText = descriptionItem.join(" ");
   console.log(`About Item: ${descriptionItemText}`);
-  data["descriptionItem"] = descriptionItemText;
+  data["descriptionItem"] = descriptionItemText || null;
 
   // Scrape the product details
   const generalProductDetails = await page.$$eval(
@@ -95,15 +105,17 @@ async function scrapeProductDetails(url) {
       elements.map((element) => {
         const key = element
           .querySelector("td.a-span3 span.a-size-base.a-text-bold")
-          .textContent.trim();
+          ?.textContent.trim();
         const value = element
           .querySelector("td.a-span9 span.a-size-base.po-break-word")
-          .textContent.trim();
-        return { [key]: value };
+          ?.textContent.trim();
+        return key && value ? { [key]: value } : null;
       })
+      .filter(Boolean) // Remove null values
   );
   console.log(`Product Details: ${JSON.stringify(generalProductDetails)}`);
-  data["generalProductDetails"] = generalProductDetails;
+  data["generalProductDetails"] =
+    generalProductDetails.length > 0 ? generalProductDetails : null;
 
   // Scrape the description
   const generalDescriptionItem = await page.$$eval(
@@ -111,10 +123,15 @@ async function scrapeProductDetails(url) {
     (elements) => elements.map((item) => item.textContent.trim())
   );
   const description = generalDescriptionItem.join(" ");
-  data["generalDescriptionItem"] = description;
+  console.log(`Description: ${description}`);
+  data["generalDescriptionItem"] = description || null;
+
+  // Close browser
+  await browser.close();
 
   return data;
 }
+
 
 async function scrapeReviewsByRating(url, filterRating) {
   let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
@@ -122,10 +139,10 @@ async function scrapeReviewsByRating(url, filterRating) {
   const browser = await puppeteer.launch({
     headless: "New",
     args: process.env.NODE_ENV === "production" ? customArgs : [],
-    // executablePath:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
-    //     : puppeteer.executablePath(),
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
   });
 
   const page = await browser.newPage();
@@ -250,6 +267,9 @@ export async function runCrawler(urls) {
           if (!dataset[index].reviewsByYear) {
             dataset[index].reviewsByYear = {};
           }
+          if (!dataset[index].descriptiveAnalysis) {
+            dataset[index].descriptiveAnalysis = {};
+          }
 
           if (!dataset[index].reviewsByYear[year]) {
             dataset[index].reviewsByYear[year] = {
@@ -258,6 +278,15 @@ export async function runCrawler(urls) {
               three_star: 0,
               two_star: 0,
               one_star: 0,
+            };
+          }
+
+          if (!dataset[index].descriptiveAnalysis[year]) {
+            dataset[index].descriptiveAnalysis[year] = {
+              mean:0,
+              median: 0,
+              standardDeviation: 0,
+              range:0,
             };
           }
 
@@ -276,9 +305,31 @@ export async function runCrawler(urls) {
     }
   }
 
-  console.log(dataset);
-  for (const data of dataset) {
-    console.log(`Number of reviews for ${data.totalreviews.length}:`);
+// Descriptive Analysis
+console.log(`Descriptive Analysis:`);
+
+
+for (const data of dataset) {
+  console.log(`Analysis for ${data.url}:`);
+  for (const year in data.reviewsByYear) {
+    console.log(`Year: ${year}`);
+    data.descriptiveAnalysis[year] = {};
+
+    // Calculate descriptive statistics for the counts in the current year
+    const counts = Object.values(data.reviewsByYear[year]);
+    let descriptiveDataObject = {
+      mean: ss.mean(counts),
+      median: ss.median(counts),
+      standardDeviation: ss.standardDeviation(counts),
+      range: Math.max(...counts) - Math.min(...counts),
+    };
+    data.descriptiveAnalysis[year] = descriptiveDataObject;
   }
+
+  console.log(`Total reviews: ${data.totalreviews.length}`);
+  console.log('\n');
+}
+
+
   return dataset;
 }
