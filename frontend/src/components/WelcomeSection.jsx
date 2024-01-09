@@ -1,5 +1,5 @@
 import { ServiceCard } from "./ServiceCard";
-
+import { Blockquote } from "flowbite-react";
 function WelcomeSection() {
   return (
     <div className="container relative flex flex-col justify-center  max-w-6xl px-10 mx-auto xl:px-0 mt-5">
@@ -7,9 +7,13 @@ function WelcomeSection() {
         <h2 className="mb-1 text-3xl leading-tight text-white-600">
           Welcome to Scamless
         </h2>
-        <p className="mb-12 text-lg text-white-500">
+        <p className="mb-1 text-lg text-white-500">
           Here is a few of the awesome Services we provide.
         </p>
+        <Blockquote className="my-4 border-l-4  p-4 border-white-800 bg-[#3d3d3d] text-white-800 ">
+          “Artificial intelligence is not a substitute for human intelligence;
+          it is a tool to amplify human creativity and ingenuity.”
+        </Blockquote>
       </div>
 
       <div className="w-full">

@@ -1,7 +1,11 @@
 import puppeteer from "puppeteer-extra"; // Change this line
 import StealthPlugin from "puppeteer-extra-plugin-stealth"; // Add this line
-import * as ss from 'simple-statistics'
+import * as ss from "simple-statistics";
 import dotenv from "dotenv";
+import natural from "natural";
+const Analyzer = natural.SentimentAnalyzer;
+const stemmer = natural.PorterStemmer;
+const analyzer = new Analyzer("English", stemmer, "afinn");
 dotenv.config();
 
 // Add these lines to use the stealth plugin
@@ -71,20 +75,21 @@ async function scrapeProductDetails(url) {
   const productDetails = await page.$$eval(
     "div.product-facts-detail",
     (elements) =>
-      elements.map((element) => {
-        const key = element
-          .querySelector(
-            "div.a-fixed-left-grid-col.a-col-left span.a-color-base"
-          )
-          ?.textContent.trim();
-        const value = element
-          .querySelector(
-            "div.a-fixed-left-grid-col.a-col-right span.a-color-base"
-          )
-          ?.textContent.trim();
-        return key && value ? { [key]: value } : null;
-      })
-      .filter(Boolean) // Remove null values
+      elements
+        .map((element) => {
+          const key = element
+            .querySelector(
+              "div.a-fixed-left-grid-col.a-col-left span.a-color-base"
+            )
+            ?.textContent.trim();
+          const value = element
+            .querySelector(
+              "div.a-fixed-left-grid-col.a-col-right span.a-color-base"
+            )
+            ?.textContent.trim();
+          return key && value ? { [key]: value } : null;
+        })
+        .filter(Boolean) // Remove null values
   );
   console.log(`Product Details: ${JSON.stringify(productDetails)}`);
   data["productDetails"] = productDetails.length > 0 ? productDetails : null;
@@ -102,16 +107,17 @@ async function scrapeProductDetails(url) {
   const generalProductDetails = await page.$$eval(
     "table.a-normal.a-spacing-micro tr",
     (elements) =>
-      elements.map((element) => {
-        const key = element
-          .querySelector("td.a-span3 span.a-size-base.a-text-bold")
-          ?.textContent.trim();
-        const value = element
-          .querySelector("td.a-span9 span.a-size-base.po-break-word")
-          ?.textContent.trim();
-        return key && value ? { [key]: value } : null;
-      })
-      .filter(Boolean) // Remove null values
+      elements
+        .map((element) => {
+          const key = element
+            .querySelector("td.a-span3 span.a-size-base.a-text-bold")
+            ?.textContent.trim();
+          const value = element
+            .querySelector("td.a-span9 span.a-size-base.po-break-word")
+            ?.textContent.trim();
+          return key && value ? { [key]: value } : null;
+        })
+        .filter(Boolean) // Remove null values
   );
   console.log(`Product Details: ${JSON.stringify(generalProductDetails)}`);
   data["generalProductDetails"] =
@@ -131,7 +137,6 @@ async function scrapeProductDetails(url) {
 
   return data;
 }
-
 
 async function scrapeReviewsByRating(url, filterRating) {
   let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
@@ -164,6 +169,7 @@ async function scrapeReviewsByRating(url, filterRating) {
         element.textContent.trim()
       );
       let reviewText = null;
+
       try {
         reviewText = await review.$eval(
           ".a-size-base.review-text.review-text-content > span",
@@ -172,6 +178,15 @@ async function scrapeReviewsByRating(url, filterRating) {
       } catch (error) {
         console.error("Error fetching review text:", error.message);
       }
+
+      let sentimentScore = null;
+      if (reviewText) {
+        const result = analyzer.getSentiment(reviewText.split(" "));
+        console.log(result, reviewText.split(" "));
+        // const humanReadable = interpretSentiment(result);
+        sentimentScore = result;
+      }
+
       const rating = await review.$eval(".a-icon-alt", (element) =>
         element.textContent.trim()
       );
@@ -199,6 +214,7 @@ async function scrapeReviewsByRating(url, filterRating) {
       console.log(`Rating: ${rating}`);
       console.log(`Rating Description: ${ratingDescription}`);
       console.log(`Time: ${time}`);
+      console.log(`Sentiment Score: ${sentimentScore}`);
 
       console.log("---");
 
@@ -213,6 +229,7 @@ async function scrapeReviewsByRating(url, filterRating) {
         reviewText,
         time,
         filterRating,
+        sentimentScore,
       });
     }
 
@@ -283,10 +300,10 @@ export async function runCrawler(urls) {
 
           if (!dataset[index].descriptiveAnalysis[year]) {
             dataset[index].descriptiveAnalysis[year] = {
-              mean:0,
+              mean: 0,
               median: 0,
               standardDeviation: 0,
-              range:0,
+              range: 0,
             };
           }
 
@@ -305,31 +322,52 @@ export async function runCrawler(urls) {
     }
   }
 
-// Descriptive Analysis
-console.log(`Descriptive Analysis:`);
-
-
-for (const data of dataset) {
-  console.log(`Analysis for ${data.url}:`);
-  for (const year in data.reviewsByYear) {
-    console.log(`Year: ${year}`);
-    data.descriptiveAnalysis[year] = {};
-
-    // Calculate descriptive statistics for the counts in the current year
-    const counts = Object.values(data.reviewsByYear[year]);
-    let descriptiveDataObject = {
-      mean: ss.mean(counts),
-      median: ss.median(counts),
-      standardDeviation: ss.standardDeviation(counts),
-      range: Math.max(...counts) - Math.min(...counts),
+  for (const data of dataset) {
+    data.sentiment = {
+      veryPositive: 0,
+      positive: 0,
+      negative: 0,
+      neutral: 0,
     };
-    data.descriptiveAnalysis[year] = descriptiveDataObject;
+    for (const value of data.totalreviews) {
+      console.log(value, data.totalreviews);
+      if (value.sentimentScore !== null) {
+        if (value.sentimentScore > 0.5) {
+          data.sentiment.veryPositive++;
+        } else if (value.sentimentScore > 0) {
+          data.sentiment.positive++;
+        } else if (value.sentimentScore < 0) {
+          data.sentiment.negative++;
+        } else {
+          data.sentiment.neutral++;
+        }
+      }
+    }
   }
 
-  console.log(`Total reviews: ${data.totalreviews.length}`);
-  console.log('\n');
-}
+  // Descriptive Analysis
+  console.log(`Descriptive Analysis:`);
 
+  for (const data of dataset) {
+    console.log(`Analysis for ${data.url}:`);
+    for (const year in data.reviewsByYear) {
+      console.log(`Year: ${year}`);
+      data.descriptiveAnalysis[year] = {};
+
+      // Calculate descriptive statistics for the counts in the current year
+      const counts = Object.values(data.reviewsByYear[year]);
+      let descriptiveDataObject = {
+        mean: ss.mean(counts),
+        median: ss.median(counts),
+        standardDeviation: ss.standardDeviation(counts),
+        range: Math.max(...counts) - Math.min(...counts),
+      };
+      data.descriptiveAnalysis[year] = descriptiveDataObject;
+    }
+
+    console.log(`Total reviews: ${data.totalreviews.length}`);
+    console.log("\n");
+  }
 
   return dataset;
 }

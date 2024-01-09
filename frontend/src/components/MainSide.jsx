@@ -106,29 +106,35 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
   };
 
   // Assume you have the descriptive analysis data in a variable named 'descriptiveAnalysis'
-const descriptiveAnalysis = {
-  "2020": {"mean": 0.6, "median": 0, "standardDeviation": 0.8, "range": 2},
-  "2021": {"mean": 1.6, "median": 1, "standardDeviation": 0.8, "range": 2},
-  "2022": {"mean": 1.4, "median": 1, "standardDeviation": 1.5, "range": 4},
-  "2023": {"mean": 6.4, "median": 7, "standardDeviation": 2.1, "range": 5}
-};
+  const descriptiveAnalysis = {
+    2020: { mean: 0.6, median: 0, standardDeviation: 0.8, range: 2 },
+    2021: { mean: 1.6, median: 1, standardDeviation: 0.8, range: 2 },
+    2022: { mean: 1.4, median: 1, standardDeviation: 1.5, range: 4 },
+    2023: { mean: 6.4, median: 7, standardDeviation: 2.1, range: 5 },
+  };
 
-// Extract years, mean, median, and standard deviation for the scatter chart
-const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
-  name: year,
-  value: [parseInt(year), stats.mean, stats.median, stats.standardDeviation, stats.range],
-}));
+  // Extract years, mean, median, and standard deviation for the scatter chart
+  const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
+    name: year,
+    value: [
+      parseInt(year),
+      stats.mean,
+      stats.median,
+      stats.standardDeviation,
+      stats.range,
+    ],
+  }));
   const option2 = {
     xAxis: {
-      type: 'category',
-      name: 'Year',
+      type: "category",
+      name: "Year",
       axisLabel: {
         interval: 1, // Show every label
       },
     },
     yAxis: {
-      type: 'value',
-      name: 'Metrics',
+      type: "value",
+      name: "Metrics",
     },
     title: {
       text:
@@ -141,7 +147,7 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
     series: [
       {
         data: scatter,
-        type: 'scatter',
+        type: "scatter",
         symbolSize: 20,
         encode: {
           x: 0,
@@ -151,8 +157,8 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
       },
     ],
     tooltip: {
-      trigger: 'item',
-      formatter: params => {
+      trigger: "item",
+      formatter: (params) => {
         const data = params.value;
         return `
           Year: ${data[0]}<br>
@@ -168,16 +174,16 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
 
   const sampleDataset = [
     {
-      url: 'Product A',
+      url: "Product A",
       reviewsByYear: {
-        '2022': {
+        2022: {
           five_star: 10,
           four_star: 8,
           three_star: 5,
           two_star: 3,
           one_star: 1,
         },
-        '2023': {
+        2023: {
           five_star: 15,
           four_star: 12,
           three_star: 8,
@@ -186,13 +192,13 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
         },
       },
       descriptiveAnalysis: {
-        '2022': {
+        2022: {
           mean: 5.4,
           median: 5,
           standardDeviation: 2.2,
           range: 9,
         },
-        '2023': {
+        2023: {
           mean: 8.6,
           median: 8,
           standardDeviation: 4.0,
@@ -203,12 +209,18 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
     },
     // Add more products if needed
   ];
-  
+
   // For the correlation chart
-  const starRatings = ["five_star", "four_star", "three_star", "two_star", "one_star"];
+  const starRatings = [
+    "five_star",
+    "four_star",
+    "three_star",
+    "two_star",
+    "one_star",
+  ];
   const correlationData = [
     {
-      name: '2020',
+      name: "2020",
       data: [
         [1, 0.5, -0.2],
         [0.5, 1, -0.7],
@@ -216,7 +228,7 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
       ],
     },
     {
-      name: '2021',
+      name: "2021",
       data: [
         [0.8, 0.3, 0.1],
         [0.3, 0.9, -0.5],
@@ -229,11 +241,11 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
   const mergedData = correlationData.reduce((result, yearData) => {
     // Extract data from the current year
     const currentData = yearData.data;
-  
+
     // Check if result already has data
     if (result.length === 0) {
       // If not, initialize result with the current data
-      result = currentData.map(row => [...row]);
+      result = currentData.map((row) => [...row]);
     } else {
       // If yes, merge the current data with result
       currentData.forEach((row, rowIndex) => {
@@ -242,10 +254,9 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
         });
       });
     }
-  
+
     return result;
   }, []);
-  
 
   console.log(correlationData);
 
@@ -253,7 +264,7 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
     backgroundColor: "transparent", // Set the background color here
     pixelRatio: 2,
     tooltip: {
-      position: 'top',
+      position: "top",
       formatter: (params) => {
         return `${params.data[2]} star correlation with ${params.data[3]} star: ${params.data[0]}`;
       },
@@ -263,45 +274,141 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
       min: -1,
       max: 1,
       calculable: true,
-      orient: 'horizontal',
-      left: 'center',
-      top: 'top',
+      orient: "horizontal",
+      left: "center",
+      top: "top",
       inRange: {
-        color: ['#d94e5d', '#eac736', '#50a3ba'],
+        color: ["#d94e5d", "#eac736", "#50a3ba"],
       },
     },
     grid: {
-      height: '50%',
-      y: '10%',
+      height: "50%",
+      y: "10%",
     },
     xAxis: {
-      type: 'category',
-      data: ['five_star', 'four_star', 'three_star', 'two_star', 'one_star'],
+      type: "category",
+      data: ["five_star", "four_star", "three_star", "two_star", "one_star"],
       splitArea: {
         show: true,
       },
     },
     yAxis: {
-      type: 'category',
-      data: ['2020', '2021', '2022'], // Add more years as needed
+      type: "category",
+      data: ["2020", "2021", "2022"], // Add more years as needed
       splitArea: {
         show: true,
       },
     },
-    series: [{
-      name: 'Correlation',
-      type: 'heatmap',
-      data: mergedData,
-      label: {
-        show: true,
-      },
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowColor: 'rgba(0, 0, 0, 0.5)',
+    series: [
+      {
+        name: "Correlation",
+        type: "heatmap",
+        data: mergedData,
+        label: {
+          show: true,
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+          },
         },
       },
-    }],
+    ],
+  };
+
+  const optionPie = {
+    backgroundColor: "transparent", // Set the background color here
+    pixelRatio: 2,
+    title: {
+      text:
+        Object.keys(scrapedData).length != 0
+          ? "User Sentiment "
+          : "Sample user sentiment ",
+    },
+    tooltip: {
+      trigger: "item",
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {
+          title: "Save As Image",
+          name: "user_sentiment_chart",
+          pixelRatio: 2,
+        },
+      },
+    },
+    legend: {
+      top: "5%",
+      left: "center",
+    },
+    series: [
+      {
+        name:
+          Object.keys(scrapedData).length != 0
+            ? `Total Reviews : ${Object.keys(scrapedData.sentiment).reduce(
+                (a, b) => a + scrapedData.sentiment[b],
+                0
+              )}`
+            : "Total Reviews : 2000",
+        type: "pie",
+        radius: ["40%", "70%"],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: "#fff",
+          borderWidth: 2,
+        },
+        label: {
+          show: false,
+          position: "center",
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 40,
+            fontWeight: "bold",
+          },
+        },
+        labelLine: {
+          show: false,
+        },
+        data: [
+          {
+            value:
+              Object.keys(scrapedData).length != 0
+                ? scrapedData.sentiment.negative
+                : 1048,
+            name: "Negative",
+            itemStyle: { color: "#f87171" }, // Specify color for "Not Satisfied"
+          },
+          {
+            value:
+              Object.keys(scrapedData).length != 0
+                ? scrapedData.sentiment.neutral
+                : 741,
+            name: "Neutral",
+            itemStyle: { color: "#3b82f6" }, // Specify color for "Neutral"
+          },
+          {
+            value:
+              Object.keys(scrapedData).length != 0
+                ? scrapedData.sentiment.positive
+                : 580,
+            name: "Satisfied",
+            itemStyle: { color: "#facc15" }, // Specify color for "Satisfied"
+          },
+          {
+            value:
+              Object.keys(scrapedData).length != 0
+                ? scrapedData.sentiment.veryPositive
+                : 484,
+            name: "Perfect",
+            itemStyle: { color: "#22c55e" }, // Specify color for "Perfect"
+          },
+        ],
+      },
+    ],
   };
 
   return (
@@ -311,34 +418,42 @@ const scatter = Object.entries(descriptiveAnalysis).map(([year, stats]) => ({
         <SearchBar scrapedData={scrapedData} setScrapedData={setScrapedData} />
         {showChart && domLoaded ? (
           <>
-          <div
-            style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-          >
-            <ReactECharts
-              option={chartOption}
-              style={{ height: "50vh", width: "50vw" }}
-              theme="dark"
-            />
-          
-          </div>
-          <div
-            style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-          >
-                <ReactECharts
-              option={option2}
-              style={{ height: "50vh", width: "50vw" }}
-              theme="dark"
-            />
-          </div>
-          <div
-            style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-          >
-                <ReactECharts
-              option={option}
-              style={{ height: "50vh", width: "50vw" }}
-              theme="dark"
-            />
-          </div>
+            <div
+              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
+            >
+              <ReactECharts
+                option={chartOption}
+                style={{ height: "50vh", width: "50vw" }}
+                theme="dark"
+              />
+            </div>
+            <div
+              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
+            >
+              <ReactECharts
+                option={optionPie}
+                style={{ height: "50vh", width: "50vw" }}
+                theme="dark"
+              />
+            </div>
+            <div
+              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
+            >
+              <ReactECharts
+                option={option2}
+                style={{ height: "50vh", width: "50vw" }}
+                theme="dark"
+              />
+            </div>
+            <div
+              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
+            >
+              <ReactECharts
+                option={option}
+                style={{ height: "50vh", width: "50vw" }}
+                theme="dark"
+              />
+            </div>
           </>
         ) : null}
       </div>

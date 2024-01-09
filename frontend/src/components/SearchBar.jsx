@@ -31,6 +31,7 @@ function SearchBar({ scrapedData, setScrapedData }) {
         // Fetch data from the API
         const response = await fetch(`${apiUrl}/api/data?url=${encodedUrl}`);
         const data = await response.json();
+        console.log("data", data[0]);
         setScrapedData(data[0]);
         setIsLoading(false);
         setErrorMessage("");
@@ -62,7 +63,7 @@ function SearchBar({ scrapedData, setScrapedData }) {
       <form onSubmit={handleSubmit} className=" flex flex-col ">
         <label>
           <input
-            className={`w-[100%] focus:outline-none focus:ring focus:ring-gray-500 bg-[#2b2a33] `}
+            className={`w-[100%] focus:outline-none focus:ring focus:ring-gray-500 bg-[#2b2a33] rounded-xl `}
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -107,7 +108,7 @@ function SearchBar({ scrapedData, setScrapedData }) {
           disabled={isLoading}
           className={`${
             isLoading ? "opacity-[0.2] cursor-progress " : ""
-          }  mt-[10px] bg-gray-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform  hover:scale-105 cursor-pointer`}
+          } rounded-xl  mt-[10px] bg-gray-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform  hover:scale-105 cursor-pointer`}
         />
       </form>
 
@@ -131,6 +132,25 @@ function SearchBar({ scrapedData, setScrapedData }) {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="mt-[1em] flex gap-1 justify-between">
+            <div className="  text-gray-100 font-medium me-2 px-2.5 py-0.5 rounded-full bg-red-600 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105  ">
+              Negative {""}
+              {scrapedData.sentiment.negative}
+            </div>
+            <div className=" text-gray-100  font-medium me-2 px-2.5 py-0.5 rounded-full bg-blue-700 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
+              Neutral {""}
+              {scrapedData.sentiment.neutral}
+            </div>
+
+            <div className=" text-gray-100  font-medium me-2 px-2.5 py-0.5 rounded-full bg-yellow-400 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
+              Satisfied {""}
+              {scrapedData.sentiment.positive}
+            </div>
+            <div className=" text-gray-100  font-medium me-2 px-2.5 py-0.5 rounded-full bg-green-600 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
+              Perfect {""}
+              {scrapedData.sentiment.veryPositive}
+            </div>
           </div>
         </div>
       )}
