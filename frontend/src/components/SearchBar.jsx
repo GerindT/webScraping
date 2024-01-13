@@ -1,7 +1,20 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { IoMdInformationCircleOutline } from "react-icons/io";
+
 import PropTypes from "prop-types";
+
+const bgColors = [
+  "border-red-600",
+  "border-blue-700",
+  "border-yellow-400",
+  "border-green-600",
+  "border-cyan-600",
+  "border-pink-600",
+  "border-purple-600",
+  "border-indigo-600",
+  "border-gray-600",
+];
 
 // The SearchBar component
 function SearchBar({ scrapedData, setScrapedData }) {
@@ -133,24 +146,93 @@ function SearchBar({ scrapedData, setScrapedData }) {
               </div>
             ))}
           </div>
-          <div className="mt-[1em] flex gap-1 justify-between">
-            <div className="  text-gray-100 font-medium me-2 px-2.5 py-0.5 rounded-full bg-red-600 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105  ">
-              Negative {""}
-              {scrapedData.sentiment.negative}
+          <h2 className="mt-[1em] text-2xl leading-tight text-white-600 text-center">
+            User Reception
+          </h2>
+          <div className="mt-[0.5em] flex gap-1 justify-between">
+            <div>
+              <p className="text-center cursor-pointer text-red-700">
+                Negative
+              </p>
+              <div className="  text-gray-100 font-medium  px-2.5 py-0.5 rounded-full bg-red-600 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105  ">
+                {(
+                  (scrapedData.sentiment.negative /
+                    Object.keys(scrapedData.sentiment).reduce(
+                      (a, b) => a + scrapedData.sentiment[b],
+                      0
+                    )) *
+                  100
+                ).toFixed(2) + "%"}
+              </div>
             </div>
-            <div className=" text-gray-100  font-medium me-2 px-2.5 py-0.5 rounded-full bg-blue-700 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
-              Neutral {""}
-              {scrapedData.sentiment.neutral}
+            <div>
+              <p className="text-center cursor-pointer text-blue-600">
+                Neutral
+              </p>
+              <div className=" text-gray-100  font-medium  px-2.5 py-0.5 rounded-full bg-blue-700 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
+                {(
+                  (scrapedData.sentiment.neutral /
+                    Object.keys(scrapedData.sentiment).reduce(
+                      (a, b) => a + scrapedData.sentiment[b],
+                      0
+                    )) *
+                  100
+                ).toFixed(2) + "%"}
+              </div>
             </div>
+            <div>
+              <p className="text-center cursor-pointer text-yellow-400">
+                Satisfied
+              </p>
 
-            <div className=" text-gray-100  font-medium me-2 px-2.5 py-0.5 rounded-full bg-yellow-400 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
-              Satisfied {""}
-              {scrapedData.sentiment.positive}
+              <div className=" text-gray-100  font-medium  px-2.5 py-0.5 rounded-full bg-yellow-400 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
+                {(
+                  (scrapedData.sentiment.positive /
+                    Object.keys(scrapedData.sentiment).reduce(
+                      (a, b) => a + scrapedData.sentiment[b],
+                      0
+                    )) *
+                  100
+                ).toFixed(2) + "%"}
+              </div>
             </div>
-            <div className=" text-gray-100  font-medium me-2 px-2.5 py-0.5 rounded-full bg-green-600 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
-              Perfect {""}
-              {scrapedData.sentiment.veryPositive}
+            <div>
+              <p className="text-center text-green-600 cursor-pointer">
+                Perfect
+              </p>
+              <div className=" text-gray-100  font-medium  px-2.5 py-0.5 rounded-full bg-green-600 cursor-pointer  transition duration-100 ease-in transform  hover:scale-105 ">
+                {(
+                  (scrapedData.sentiment.veryPositive /
+                    Object.keys(scrapedData.sentiment).reduce(
+                      (a, b) => a + scrapedData.sentiment[b],
+                      0
+                    )) *
+                  100
+                ).toFixed(2) + "%"}
+              </div>
             </div>
+          </div>
+
+          <h2 className="mt-[1.5em] text-xl leading-tight text-white-600 text-center">
+            Most Common Thoughts
+          </h2>
+          <div className="flex flex-wrap gap-2 mt-4 max-w-2xl">
+            {scrapedData.keyword.map((name) => (
+              <div
+                key={name}
+                className={`${
+                  bgColors[Math.floor(Math.random() * bgColors.length)]
+                } bg-[#2b2a33] border border-[3px]  overflow-hidden shadow sm:rounded-lg cursor-pointer  transition duration-100 ease-in transform  hover:scale-105`}
+              >
+                <div className="px-3 py-1 ">
+                  <dl>
+                    <dd className=" text-sm leading-1 font-semibold text-white-600">
+                      {name}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
