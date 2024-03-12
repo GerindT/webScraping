@@ -3,6 +3,14 @@ import { push as Menu } from "react-burger-menu";
 import { FaArrowRight } from "react-icons/fa";
 
 const Sidebar = ({ isOpen, closeMenu, showChart, setShowChart }) => {
+  const toggleChart = (index) => {
+    setShowChart((prevState) => {
+      const newState = [...prevState]; // Create a copy of the current state array
+      newState[index] = !newState[index]; // Toggle the value at the first index
+      return newState; // Return the updated state
+    });
+  };
+
   return (
     <Menu
       isOpen={isOpen}
@@ -17,7 +25,38 @@ const Sidebar = ({ isOpen, closeMenu, showChart, setShowChart }) => {
         </div>
       }
     >
-      <button onClick={() => setShowChart(!showChart)}>Toggle Chart</button>
+      <label>
+        <input
+          type="checkbox"
+          checked={showChart[0]}
+          onChange={() => toggleChart(0)}
+        />
+        Toggle Chart 1
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={showChart[1]}
+          onChange={() => toggleChart(1)}
+        />
+        Toggle Chart 2
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={showChart[2]}
+          onChange={() => toggleChart(2)}
+        />
+        Toggle Chart 3
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={showChart[3]}
+          onChange={() => toggleChart(3)}
+        />
+        Toggle Chart 4
+      </label>
     </Menu>
   );
 };
