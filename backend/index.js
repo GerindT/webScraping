@@ -387,28 +387,28 @@ export async function runCrawler(urls) {
     }
   }
 
-  for (const data of dataset) {
-    data.sentiment = {
-      veryPositive: 0,
-      positive: 0,
-      negative: 0,
-      neutral: 0,
-    };
-    for (const value of data.totalreviews) {
-      // console.log(value, data.totalreviews);
-      if (value.sentimentScore !== null) {
-        if (value.sentimentScore > 0.5) {
-          data.sentiment.veryPositive++;
-        } else if (value.sentimentScore > 0) {
-          data.sentiment.positive++;
-        } else if (value.sentimentScore < 0) {
-          data.sentiment.negative++;
-        } else {
-          data.sentiment.neutral++;
-        }
-      }
-    }
-  }
+  // for (const data of dataset) {
+  //   data.sentiment = {
+  //     veryPositive: 0,
+  //     positive: 0,
+  //     negative: 0,
+  //     neutral: 0,
+  //   };
+  //   for (const value of data.totalreviews) {
+  //     // console.log(value, data.totalreviews);
+  //     if (value.sentimentScore !== null) {
+  //       if (value.sentimentScore > 0.5) {
+  //         data.sentiment.veryPositive++;
+  //       } else if (value.sentimentScore > 0) {
+  //         data.sentiment.positive++;
+  //       } else if (value.sentimentScore < 0) {
+  //         data.sentiment.negative++;
+  //       } else {
+  //         data.sentiment.neutral++;
+  //       }
+  //     }
+  //   }
+  // }
 
   // Descriptive Analysis
   // console.log(`Descriptive Analysis:`);
