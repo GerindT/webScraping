@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer-extra"; // Change this line
 import StealthPlugin from "puppeteer-extra-plugin-stealth"; // Add this line
+import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
+import AnonimizerPlugin from "puppeteer-extra-plugin-anonymize-ua";
 import * as ss from "simple-statistics";
 import dotenv from "dotenv";
 import natural from "natural";
@@ -13,6 +15,8 @@ dotenv.config();
 
 // Add these lines to use the stealth plugin
 puppeteer.use(StealthPlugin());
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+puppeteer.use(AnonimizerPlugin());
 
 // Function to analyze meaningful phrases in reviews
 function analyzeMeaningfulPhrases(
@@ -100,11 +104,17 @@ async function scrapeProductDetails(url) {
     generalDescriptionItem: null,
   };
 
-  let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
+  let customArgs = [
+    "--disable-setuid-sandbox",
+    "--no-sandbox",
+    "--no-zygote",
+    "--incognito",
+  ];
 
   const browser = await puppeteer.launch({
-    headless: "New",
-    args: process.env.NODE_ENV === "production" ? customArgs : [],
+    headless: "new",
+
+    args: customArgs,
     executablePath:
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
@@ -112,16 +122,20 @@ async function scrapeProductDetails(url) {
   });
 
   const page = await browser.newPage();
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+  );
 
   await page.goto(`${url}`, {
     waitUntil: "domcontentloaded",
   });
 
   // Scrape the price
+
   const price = await page.$eval("span.a-offscreen", (element) =>
     element.textContent.trim()
   );
-  // console.log(`Price: ${price}`);
+  console.log(`Price: ${price}`);
   data["price"] = price || null;
 
   // Scrape the product title
@@ -199,11 +213,16 @@ async function scrapeProductDetails(url) {
 }
 
 async function scrapeReviewsByRating(url, filterRating) {
-  let customArgs = ["--disable-setuid-sandbox", "--no-sandbox", "--no-zygote"];
+  let customArgs = [
+    "--disable-setuid-sandbox",
+    "--no-sandbox",
+    "--no-zygote",
+    "--incognito",
+  ];
 
   const browser = await puppeteer.launch({
-    headless: "New",
-    args: process.env.NODE_ENV === "production" ? customArgs : [],
+    headless: "new",
+    args: customArgs,
     executablePath:
       process.env.NODE_ENV === "production"
         ? process.env.PUPPETEER_EXECUTABLE_PATH
@@ -211,6 +230,9 @@ async function scrapeReviewsByRating(url, filterRating) {
   });
 
   const page = await browser.newPage();
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+  );
 
   const reviewsUrl = deriveReviewsURL(url);
   await page.goto(`${reviewsUrl}&filterByStar=${filterRating}`, {
@@ -387,28 +409,28 @@ export async function runCrawler(urls) {
     }
   }
 
-  for (const data of dataset) {
-    data.sentiment = {
-      veryPositive: 0,
-      positive: 0,
-      negative: 0,
-      neutral: 0,
-    };
-    for (const value of data.totalreviews) {
-      // console.log(value, data.totalreviews);
-      if (value.sentimentScore !== null) {
-        if (value.sentimentScore > 0.5) {
-          data.sentiment.veryPositive++;
-        } else if (value.sentimentScore > 0) {
-          data.sentiment.positive++;
-        } else if (value.sentimentScore < 0) {
-          data.sentiment.negative++;
-        } else {
-          data.sentiment.neutral++;
-        }
-      }
-    }
-  }
+  // for (const data of dataset) {
+  //   data.sentiment = {
+  //     veryPositive: 0,
+  //     positive: 0,
+  //     negative: 0,
+  //     neutral: 0,
+  //   };
+  //   for (const value of data.totalreviews) {
+  //     // console.log(value, data.totalreviews);
+  //     if (value.sentimentScore !== null) {
+  //       if (value.sentimentScore > 0.5) {
+  //         data.sentiment.veryPositive++;
+  //       } else if (value.sentimentScore > 0) {
+  //         data.sentiment.positive++;
+  //       } else if (value.sentimentScore < 0) {
+  //         data.sentiment.negative++;
+  //       } else {
+  //         data.sentiment.neutral++;
+  //       }
+  //     }
+  //   }
+  // }
 
   // Descriptive Analysis
   // console.log(`Descriptive Analysis:`);
