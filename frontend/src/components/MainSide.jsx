@@ -411,6 +411,8 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
     ],
   };
 
+  console.log("showchart", showChart);
+
   return (
     <div id="page-wrap">
       <div className="chart-container">
@@ -418,42 +420,66 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
         <SearchBar scrapedData={scrapedData} setScrapedData={setScrapedData} />
         {showChart && domLoaded ? (
           <>
-            <div
-              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-            >
-              <ReactECharts
-                option={chartOption}
-                style={{ height: "50vh", width: "50vw" }}
-                theme="dark"
-              />
-            </div>
-            <div
-              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-            >
-              <ReactECharts
-                option={optionPie}
-                style={{ height: "50vh", width: "50vw" }}
-                theme="dark"
-              />
-            </div>
-            <div
-              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-            >
-              <ReactECharts
-                option={option2}
-                style={{ height: "50vh", width: "50vw" }}
-                theme="dark"
-              />
-            </div>
-            <div
-              style={{ maxHeight: "500px", maxWidth: "800px", display: "flex" }}
-            >
-              <ReactECharts
-                option={option}
-                style={{ height: "50vh", width: "50vw" }}
-                theme="dark"
-              />
-            </div>
+            {showChart[0] && (
+              <div
+                style={{
+                  maxHeight: "500px",
+                  maxWidth: "800px",
+                  display: "flex",
+                }}
+              >
+                <ReactECharts
+                  option={chartOption}
+                  style={{ height: "50vh", width: "50vw" }}
+                  theme="dark"
+                />
+              </div>
+            )}
+            {showChart[1] && (
+              <div
+                style={{
+                  maxHeight: "500px",
+                  maxWidth: "800px",
+                  display: "flex",
+                }}
+              >
+                <ReactECharts
+                  option={optionPie}
+                  style={{ height: "50vh", width: "50vw" }}
+                  theme="dark"
+                />
+              </div>
+            )}
+            {showChart[2] && (
+              <div
+                style={{
+                  maxHeight: "500px",
+                  maxWidth: "800px",
+                  display: "flex",
+                }}
+              >
+                <ReactECharts
+                  option={option2}
+                  style={{ height: "50vh", width: "50vw" }}
+                  theme="dark"
+                />
+              </div>
+            )}
+            {showChart[3] && (
+              <div
+                style={{
+                  maxHeight: "500px",
+                  maxWidth: "800px",
+                  display: "flex",
+                }}
+              >
+                <ReactECharts
+                  option={option}
+                  style={{ height: "50vh", width: "50vw" }}
+                  theme="dark"
+                />
+              </div>
+            )}
           </>
         ) : null}
       </div>
