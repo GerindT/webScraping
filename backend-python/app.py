@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import os
 from flask_cors import CORS
 import torch
 import numpy as np
@@ -10,7 +11,12 @@ classifier = pipeline("text-classification", model= model_id)
 
 
 app = Flask(__name__)   
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+flask_env = os.getenv('FLASK_ENV')
+print(f'Running in {flask_env} mode')
+
+origin = flask_env == "development" if 'http://localhost:3000' else 'https://amazon-review-sentiment-analysis.herokuapp.com'
+
+CORS(app, resources={r"/api/*": {"origins": origin}})
 
 @app.route('/')
 def hello_world():
@@ -30,7 +36,12 @@ def api():
     # Analyze sentiment for each review
     analyzed_reviews = []
     for review in total_reviews:
-        review_text = review.get('reviewText', '')
+        title = review.get('ratingDescription', '')
+        text = review.get('reviewText', '')
+        if title:
+            review_text = title + " " + text
+        else:
+            review_text = text
         value = classifier(review_text)
         print(value)
         review['score'] = value[0]['score']
@@ -49,15 +60,15 @@ def api():
 
 
     
-    csv_filename = "analyzed_reviews.csv"
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
-        fieldnames = ['reviewText', 'score', 'sentiment']
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        for review in analyzed_reviews:
-            writer.writerow({'reviewText': review['reviewText'],
-                             'score': review['score'],
-                             'sentiment': review['sentiment']})
+    # csv_filename = "analyzed_reviews.csv"
+    # with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
+    #     fieldnames = ['reviewText', 'score', 'sentiment']
+    #     writer = csv.DictWriter(file, fieldnames=fieldnames)
+    #     writer.writeheader()
+    #     for review in analyzed_reviews:
+    #         writer.writerow({'reviewText': review['reviewText'],
+    #                          'score': review['score'],
+    #                          'sentiment': review['sentiment']})
 
 
     # Update the request data with the analyzed reviews

@@ -3,3 +3,4 @@ python-dotenv
 transformers
 torch
 flask_cors 
+gunicorn

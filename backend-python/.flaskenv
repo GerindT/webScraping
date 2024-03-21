@@ -1,3 +1,4 @@
 FLASK_APP=app 
 FLASK_DEBUG=True
 FLASK_RUN_PORT=4000
+FLASK_ENV=development
