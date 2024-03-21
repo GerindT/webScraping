@@ -29,7 +29,7 @@ router.get("/api/data", async (req, res, next) => {
     // Example usage
 
     axios
-      .post("http://127.0.0.1:4000/api", {
+      .post(pyApi + "api", {
         data: extractedData, // Pass the extracted data to the Flask API
       })
       .then((response) => {
