@@ -16,7 +16,7 @@ ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_ENV=production
 
 # Make port 10000 available to the world outside this container
-EXPOSE 10000
+EXPOSE 8080
 
 # Run gunicorn when the container launches
-CMD ["gunicorn", "-b", ":10000", "app:app"]
+CMD ["gunicorn","--config", "gunicorn_config.py", "app:app"]
