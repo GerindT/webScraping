@@ -14,7 +14,7 @@ app = Flask(__name__)
 flask_env = os.getenv('FLASK_ENV')
 print(f'Running in {flask_env} mode')
 
-origin = 'http://localhost:3000' if flask_env == "development" else 'https://amazon-review-sentiment-analysis.herokuapp.com'
+origin = 'http://localhost:3000' if flask_env == "development" else 'https://scamless-backend.onrender.com'
 print(f'Origin: {origin}')
 CORS(app, resources={r"/api/*": {"origins": origin}})
 

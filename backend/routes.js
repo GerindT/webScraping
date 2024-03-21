@@ -8,7 +8,9 @@ dotenv.config();
 
 // Python api url
 const pyApi =
-  process.env.NODE_ENV === "production" ? "" : "http://127.0.0.1:4000/";
+  process.env.NODE_ENV === "production"
+    ? "https://webscraping-9qas.onrender.com/"
+    : "http://127.0.0.1:4000/";
 
 router.get("/api/data", async (req, res, next) => {
   try {
