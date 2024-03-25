@@ -15,61 +15,61 @@ dotenv.config();
 puppeteer.use(StealthPlugin());
 
 // Function to analyze meaningful phrases in reviews
-function analyzeMeaningfulPhrases(
-  reviews,
-  topWordsCount = 5,
-  minWordLength = 3
-) {
-  const meaningfulPhrases = [];
-  const wordsByRating = {};
+// function analyzeMeaningfulPhrases(
+//   reviews,
+//   topWordsCount = 5,
+//   minWordLength = 3
+// ) {
+//   const meaningfulPhrases = [];
+//   const wordsByRating = {};
 
-  // Iterate through reviews
-  for (const review of reviews) {
-    const reviewText = review.reviewText;
-    const words = new pos.Lexer().lex(reviewText);
-    const taggedWords = new pos.Tagger().tag(words);
+//   // Iterate through reviews
+//   for (const review of reviews) {
+//     const reviewText = review.reviewText;
+//     const words = new pos.Lexer().lex(reviewText);
+//     const taggedWords = new pos.Tagger().tag(words);
 
-    // Iterate through tagged words
-    for (const taggedWord of taggedWords) {
-      const word = taggedWord[0].toLowerCase();
-      const tag = taggedWord[1];
+//     // Iterate through tagged words
+//     for (const taggedWord of taggedWords) {
+//       const word = taggedWord[0].toLowerCase();
+//       const tag = taggedWord[1];
 
-      // Consider only nouns (NN) and adjectives (JJ) with a minimum length
-      if ((tag === "NN" || tag === "JJ") && word.length >= minWordLength) {
-        meaningfulPhrases.push(word);
+//       // Consider only nouns (NN) and adjectives (JJ) with a minimum length
+//       if ((tag === "NN" || tag === "JJ") && word.length >= minWordLength) {
+//         meaningfulPhrases.push(word);
 
-        // Count words by rating
-        if (!wordsByRating.hasOwnProperty(review.filterRating)) {
-          wordsByRating[review.filterRating] = {};
-        }
+//         // Count words by rating
+//         if (!wordsByRating.hasOwnProperty(review.filterRating)) {
+//           wordsByRating[review.filterRating] = {};
+//         }
 
-        if (!wordsByRating[review.filterRating].hasOwnProperty(word)) {
-          wordsByRating[review.filterRating][word] = 0;
-        }
+//         if (!wordsByRating[review.filterRating].hasOwnProperty(word)) {
+//           wordsByRating[review.filterRating][word] = 0;
+//         }
 
-        // Apply sentiment score as weight (this is just an example, adjust as needed)
-        const sentimentWeight = review.sentimentScore || 0;
-        wordsByRating[review.filterRating][word] += sentimentWeight;
-      }
-    }
-  }
+//         // Apply sentiment score as weight (this is just an example, adjust as needed)
+//         const sentimentWeight = review.sentimentScore || 0;
+//         wordsByRating[review.filterRating][word] += sentimentWeight;
+//       }
+//     }
+//   }
 
-  // Get top words for each rating
-  const topWordsByRating = {};
-  for (const rating in wordsByRating) {
-    const wordCounts = wordsByRating[rating];
-    const sortedWords = Object.keys(wordCounts)
-      .filter((word) => word.length >= minWordLength)
-      .sort((a, b) => wordCounts[b] - wordCounts[a]);
+//   // Get top words for each rating
+//   const topWordsByRating = {};
+//   for (const rating in wordsByRating) {
+//     const wordCounts = wordsByRating[rating];
+//     const sortedWords = Object.keys(wordCounts)
+//       .filter((word) => word.length >= minWordLength)
+//       .sort((a, b) => wordCounts[b] - wordCounts[a]);
 
-    // Apply weighting based on sentiment scores or other criteria if needed
-    const weightedWords = sortedWords.slice(0, topWordsCount);
+//     // Apply weighting based on sentiment scores or other criteria if needed
+//     const weightedWords = sortedWords.slice(0, topWordsCount);
 
-    topWordsByRating[rating] = weightedWords;
-  }
+//     topWordsByRating[rating] = weightedWords;
+//   }
 
-  return topWordsByRating;
-}
+//   return topWordsByRating;
+// }
 
 function deriveReviewsURL(productURL) {
   // Extract the product ID from the URL
@@ -239,13 +239,13 @@ async function scrapeReviewsByRating(url, filterRating) {
         console.error("Error fetching review text:", error.message);
       }
 
-      let sentimentScore = null;
-      if (reviewText) {
-        const result = analyzer.getSentiment(reviewText.split(" "));
-        // console.log(result, reviewText.split(" "));
-        // const humanReadable = interpretSentiment(result);
-        sentimentScore = result;
-      }
+      // let sentimentScore = null;
+      // if (reviewText) {
+      //   const result = analyzer.getSentiment(reviewText.split(" "));
+      //   // console.log(result, reviewText.split(" "));
+      //   // const humanReadable = interpretSentiment(result);
+      //   sentimentScore = result;
+      // }
 
       const rating = await review.$eval(".a-icon-alt", (element) =>
         element.textContent.trim()
@@ -274,7 +274,7 @@ async function scrapeReviewsByRating(url, filterRating) {
       console.log(`Rating: ${rating}`);
       console.log(`Rating Description: ${ratingDescription}`);
       console.log(`Time: ${time}`);
-      console.log(`Sentiment Score: ${sentimentScore}`);
+      // console.log(`Sentiment Score: ${sentimentScore}`);
 
       console.log("---");
 
@@ -289,7 +289,7 @@ async function scrapeReviewsByRating(url, filterRating) {
         reviewText,
         time,
         filterRating,
-        sentimentScore,
+        // sentimentScore,
       });
     }
 
@@ -307,7 +307,7 @@ async function scrapeReviewsByRating(url, filterRating) {
 }
 
 export async function runCrawler(urls) {
-  let keyword = [];
+  // let keyword = [];
   const dataset = [];
   const starRatings = [
     "five_star",
@@ -329,9 +329,9 @@ export async function runCrawler(urls) {
     dataset[index] = { ...dataset[index], ...baseData };
     for (const rating of starRatings) {
       const reviewData = await scrapeReviewsByRating(url, rating);
-      const topWords = analyzeMeaningfulPhrases(reviewData[rating], 5);
+      // const topWords = analyzeMeaningfulPhrases(reviewData[rating], 5);
 
-      keyword.push(topWords);
+      // keyword.push(topWords);
 
       for (const review of reviewData[rating]) {
         const timeString = review.time;
@@ -411,14 +411,14 @@ export async function runCrawler(urls) {
     // console.log("\n");
   }
 
-  keyword = Object.keys(keyword).map((item) => {
-    return Object.values(keyword[item]);
-  });
+  // keyword = Object.keys(keyword).map((item) => {
+  //   return Object.values(keyword[item]);
+  // });
 
-  keyword = [...new Set(keyword.flat().flat())];
-  console.log(keyword);
+  // keyword = [...new Set(keyword.flat().flat())];
+  // console.log(keyword);
 
-  dataset[0].keyword = keyword;
+  // dataset[0].keyword = keyword;
 
   return dataset;
 }
