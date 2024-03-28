@@ -234,6 +234,27 @@ function SearchBar({ scrapedData, setScrapedData }) {
               </div>
             ))}
           </div>
+          <h2 className="mt-[1.5em] text-xl leading-tight text-white-600 text-center">
+            Product Features
+          </h2>
+          <div className="flex flex-wrap gap-2 mt-4 max-w-2xl">
+            {scrapedData.descriptionFeatures.map((name) => (
+              <div
+                key={name}
+                className={`${
+                  bgColors[Math.floor(Math.random() * bgColors.length)]
+                } bg-[#2b2a33] border border-[3px]  overflow-hidden shadow sm:rounded-lg cursor-pointer  transition duration-100 ease-in transform  hover:scale-105`}
+              >
+                <div className="px-3 py-1 ">
+                  <dl>
+                    <dd className=" text-sm leading-1 font-semibold text-white-600">
+                      {name}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </motion.div>
