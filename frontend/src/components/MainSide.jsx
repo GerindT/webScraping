@@ -2,6 +2,7 @@ import ReactECharts from "echarts-for-react";
 import PropTypes from "prop-types";
 import SearchBar from "./SearchBar";
 import WelcomeSection from "./WelcomeSection";
+import RecommendItems from "./RecommendItems";
 
 function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
   const chartOption = {
@@ -411,8 +412,6 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
     ],
   };
 
-  console.log("showchart", showChart);
-
   return (
     <div id="page-wrap">
       <div className="chart-container">
@@ -481,6 +480,11 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
               </div>
             )}
           </>
+        ) : null}
+        {Object.keys(scrapedData).length != 0 ? (
+          <div className="flex gap-2 mt-2 flex-col md:flex-row">
+            <RecommendItems data={scrapedData} />
+          </div>
         ) : null}
       </div>
     </div>

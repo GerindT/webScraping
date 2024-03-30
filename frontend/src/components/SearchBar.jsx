@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 
 import PropTypes from "prop-types";
+import RecommendItems from "./RecommendItems";
 
 const bgColors = [
   "border-red-600",
@@ -257,6 +258,9 @@ function SearchBar({ scrapedData, setScrapedData }) {
           </div>
         </div>
       )}
+      <div className="flex gap-2 mt-2 flex-col md:flex-row">
+        <RecommendItems />
+      </div>
     </motion.div>
   );
 }
