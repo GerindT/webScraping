@@ -4,7 +4,13 @@ import SearchBar from "./SearchBar";
 import WelcomeSection from "./WelcomeSection";
 import RecommendItems from "./RecommendItems";
 
-function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
+function MainSide({
+  showChart,
+  domLoaded,
+  scrapedData,
+  setScrapedData,
+  starColors,
+}) {
   const chartOption = {
     title: {
       text:
@@ -44,7 +50,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
     pixelRatio: 2,
     series: [
       {
-        color: "#3b82f6",
+        color: starColors.star1.color,
         name: "One Star",
         type: "line",
         stack: "Total",
@@ -56,7 +62,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
             : [120, 132, 101, 134, 90, 230, 210],
       },
       {
-        color: "#a855f7",
+        color: starColors.star2.color,
         name: "Two Star",
         type: "line",
         stack: "Total",
@@ -68,7 +74,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
             : [220, 182, 191, 234, 290, 330, 310],
       },
       {
-        color: "#f87171",
+        color: starColors.star3.color,
         name: "Three Star",
         type: "line",
         stack: "Total",
@@ -80,7 +86,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
             : [150, 232, 201, 154, 190, 330, 410],
       },
       {
-        color: "#facc15",
+        color: starColors.star4.color,
         name: "Four Star",
         type: "line",
         stack: "Total",
@@ -92,7 +98,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
             : [320, 332, 301, 334, 390, 330, 320],
       },
       {
-        color: "#22c55e",
+        color: starColors.star5.color,
         name: "Five Star",
         type: "line",
         stack: "Total",
@@ -482,7 +488,7 @@ function MainSide({ showChart, domLoaded, scrapedData, setScrapedData }) {
           </>
         ) : null}
         {Object.keys(scrapedData).length != 0 ? (
-          <div className="flex gap-2 mt-2 flex-col md:flex-row">
+          <div className="flex flex-col gap-2 mt-2 md:flex-row">
             <RecommendItems data={scrapedData} />
           </div>
         ) : null}
@@ -496,6 +502,7 @@ MainSide.propTypes = {
   showChart: PropTypes.bool.isRequired,
   scrapedData: PropTypes.object.isRequired,
   setScrapedData: PropTypes.func.isRequired,
+  starColors: PropTypes.object.isRequired,
 };
 
 export default MainSide;

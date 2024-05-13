@@ -7,15 +7,14 @@ import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
 import "./Sidebar.css";
 
-const Sidebar = ({ isOpen, closeMenu, showChart, setShowChart }) => {
-  const [starColors, setStarColors] = useState({
-    star1: { color: "#4287f5", show: false },
-    star2: { color: "#4287f5", show: false },
-    star3: { color: "#4287f5", show: false },
-    star4: { color: "#4287f5", show: false },
-    star5: { color: "#4287f5", show: false },
-  });
-
+const Sidebar = ({
+  isOpen,
+  closeMenu,
+  showChart,
+  setShowChart,
+  setStarColors,
+  starColors,
+}) => {
   const toggleChart = (index) => {
     setShowChart((prevState) => {
       const newState = [...prevState]; // Create a copy of the current state array
@@ -138,6 +137,8 @@ Sidebar.propTypes = {
   closeMenu: PropTypes.func.isRequired,
   showChart: PropTypes.bool.isRequired,
   setShowChart: PropTypes.func.isRequired,
+  setStarColors: PropTypes.func.isRequired,
+  starColors: PropTypes.object.isRequired,
 };
 
 export default Sidebar;
