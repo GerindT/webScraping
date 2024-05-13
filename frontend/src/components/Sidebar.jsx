@@ -1,14 +1,47 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { push as Menu } from "react-burger-menu";
 import { FaArrowRight } from "react-icons/fa";
+import { HexColorPicker } from "react-colorful";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
+import { FaStar } from "react-icons/fa";
+import "./Sidebar.css";
 
 const Sidebar = ({ isOpen, closeMenu, showChart, setShowChart }) => {
+  const [starColors, setStarColors] = useState({
+    star1: { color: "#4287f5", show: false },
+    star2: { color: "#4287f5", show: false },
+    star3: { color: "#4287f5", show: false },
+    star4: { color: "#4287f5", show: false },
+    star5: { color: "#4287f5", show: false },
+  });
+
   const toggleChart = (index) => {
     setShowChart((prevState) => {
       const newState = [...prevState]; // Create a copy of the current state array
       newState[index] = !newState[index]; // Toggle the value at the first index
       return newState; // Return the updated state
     });
+  };
+
+  const handleShow = (star) => {
+    setStarColors((prevState) => ({
+      ...prevState,
+      [star]: {
+        ...prevState[star],
+        show: !prevState[star].show,
+      },
+    }));
+  };
+
+  const handleColorChange = (star, color) => {
+    setStarColors((prevState) => ({
+      ...prevState,
+      [star]: {
+        ...prevState[star],
+        color: color,
+      },
+    }));
   };
 
   return (
@@ -25,38 +58,50 @@ const Sidebar = ({ isOpen, closeMenu, showChart, setShowChart }) => {
         </div>
       }
     >
-      <label>
-        <input
-          type="checkbox"
-          checked={showChart[0]}
-          onChange={() => toggleChart(0)}
-        />
-        Toggle Chart 1
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={showChart[1]}
-          onChange={() => toggleChart(1)}
-        />
-        Toggle Chart 2
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={showChart[2]}
-          onChange={() => toggleChart(2)}
-        />
-        Toggle Chart 3
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={showChart[3]}
-          onChange={() => toggleChart(3)}
-        />
-        Toggle Chart 4
-      </label>
+      <h2>Color choice for Reviews</h2>
+
+      {Object.entries(starColors).map(([star, { color, show }], index) => (
+        <div key={index}>
+          <div className="flex items-center">
+            <div className="flex items-center gap-2">
+              <div className="flex">
+                {[...Array(index + 1)].map((_, starIndex) => (
+                  <FaStar key={starIndex} />
+                ))}
+              </div>
+              <div
+                className="w-6 h-5 rounded-lg"
+                style={{ backgroundColor: color }}
+              ></div>
+            </div>
+            <div>
+              <MdKeyboardDoubleArrowRight
+                size={25}
+                onClick={() => handleShow(star)}
+              />
+            </div>
+            <div className="test">
+              {show && (
+                <HexColorPicker
+                  color={color}
+                  onChange={(event) => handleColorChange(star, event)}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+      <h2>Toggle Charts</h2>
+      {Object.keys(showChart).map((chartIndex) => (
+        <label key={chartIndex}>
+          <input
+            type="checkbox"
+            checked={showChart[chartIndex]}
+            onChange={() => toggleChart(chartIndex)}
+          />
+          Toggle Chart {parseInt(chartIndex) + 1}
+        </label>
+      ))}
     </Menu>
   );
 };
