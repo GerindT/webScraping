@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 import { push as Menu } from "react-burger-menu";
 import { FaArrowRight } from "react-icons/fa";
@@ -14,12 +13,22 @@ const Sidebar = ({
   setShowChart,
   setStarColors,
   starColors,
+  extraInfo,
+  setShowExtra,
 }) => {
   const toggleChart = (index) => {
     setShowChart((prevState) => {
-      const newState = [...prevState]; // Create a copy of the current state array
-      newState[index] = !newState[index]; // Toggle the value at the first index
-      return newState; // Return the updated state
+      const newState = [...prevState];
+      newState[index] = !newState[index];
+      return newState;
+    });
+  };
+
+  const toggleExtraChart = (index) => {
+    setShowExtra((prevState) => {
+      const newState = [...prevState];
+      newState[index] = !newState[index];
+      return newState;
     });
   };
 
@@ -101,6 +110,16 @@ const Sidebar = ({
           Toggle Chart {parseInt(chartIndex) + 1}
         </label>
       ))}
+
+      <h2>Extra</h2>
+      <label>
+        <input
+          type="checkbox"
+          checked={extraInfo[0]}
+          onChange={() => toggleExtraChart(0)}
+        />
+        Show tool information
+      </label>
     </Menu>
   );
 };
@@ -139,6 +158,8 @@ Sidebar.propTypes = {
   setShowChart: PropTypes.func.isRequired,
   setStarColors: PropTypes.func.isRequired,
   starColors: PropTypes.object.isRequired,
+  extraInfo: PropTypes.array.isRequired,
+  setShowExtra: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

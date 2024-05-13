@@ -10,6 +10,7 @@ function MainSide({
   scrapedData,
   setScrapedData,
   starColors,
+  extraInfo,
 }) {
   const chartOption = {
     title: {
@@ -421,7 +422,7 @@ function MainSide({
   return (
     <div id="page-wrap">
       <div className="chart-container">
-        <WelcomeSection />
+        {extraInfo[0] && <WelcomeSection />}
         <SearchBar scrapedData={scrapedData} setScrapedData={setScrapedData} />
         {showChart && domLoaded ? (
           <>
