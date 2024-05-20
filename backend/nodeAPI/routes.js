@@ -29,7 +29,6 @@ router.get("/api/data", async (req, res, next) => {
     const extractedData = await runCrawler([url]);
 
     // Make a request to the Flask API running on localhost:4000
-    // Example usage
 
     axios
       .post(pyApi + "api", {
@@ -73,29 +72,6 @@ router.get("/api/data", async (req, res, next) => {
           .status(500)
           .json({ error: "An error occurred while fetching the data." });
       });
-  } catch (error) {
-    console.error("Error:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching the data." });
-  }
-});
-//debuging endpoint
-router.get("/api/crawl", async (req, res, next) => {
-  try {
-    const { searchTerm, price } = req.query; // Extract the searchTerm from the request body
-
-    if (!searchTerm) {
-      return res.status(400).json({ error: "Search terms are missing." });
-    }
-
-    const extractedData = await runSearchCrawler(
-      searchTerm,
-      price - 10,
-      price + 10
-    );
-
-    res.json(extractedData);
   } catch (error) {
     console.error("Error:", error);
     res
