@@ -4,7 +4,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { HexColorPicker } from "react-colorful";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
-import "./Sidebar.css";
+import "./sidebar.css";
 
 const Sidebar = ({
   isOpen,

@@ -1,0 +1,13 @@
+// Static front end on Cloudflare Workers (static assets only).
+// Deploy from this folder: npm run deploy
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scamless",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [{ "pattern": "scamless.gerind.dev", "custom_domain": true }],
+  "workers_dev": false
+}

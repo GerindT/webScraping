@@ -2,7 +2,7 @@
 
 A tool that scrapes an Amazon product and its reviews, scores each review with a fine-tuned sentiment model, and charts the results to help judge how credible the product is. Built as my bachelor's thesis and presented as a poster at EEML 2024.
 
-**Demo:** [scamless-frontend.netlify.app](https://scamless-frontend.netlify.app) (UI demo — front end only; the scraping and model APIs are not hosted)
+**Demo:** [scamless.gerind.dev](https://scamless.gerind.dev) (UI demo — front end only; the scraping and model APIs are not hosted)
 
 ![Scamless welcome screen with service cards](docs/screenshot.webp)
 
@@ -74,7 +74,7 @@ In production mode the Node API's Flask URL and both APIs' CORS origins are hard
 
 ## Deploy
 
-- Front end: `npm run build` in `frontend/` and deploy `dist/` to any static host (it was on Netlify).
+- Front end: hosted on Cloudflare Workers (static assets) at scamless.gerind.dev. From `frontend/`, `npm run deploy` builds and uploads `dist/` (config in `frontend/wrangler.jsonc`; run `npx wrangler login` once).
 - Node API: `backend/nodeAPI/Dockerfile` builds on the official Puppeteer image (it was on Render).
 - Flask API: `backend/flaskAPI/Dockerfile` runs gunicorn, but expects a `gunicorn_config.py` that is not in the repo.
 
